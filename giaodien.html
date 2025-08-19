@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống tính lương khoán</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+        }
+        .section-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a202c;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+        }
+        .step-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 40px;
+        }
+        .step-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e2e8f0;
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+        .step-progress {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 4px;
+            background: #3b82f6;
+            transform: translateY(-50%);
+            z-index: 1;
+            width: 100%; /* Default to full width for demo */
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+        .step-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .section-separator {
+            border-top: 1px solid #e2e8f0;
+            margin-top: 32px;
+            padding-top: 32px;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <!-- Header -->
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800">Hệ thống tính lương khoán</h1>
+        <p class="text-gray-500 mt-2">Quản lý và phân bổ quỹ lương theo sản lượng</p>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="card mb-8">
+        <div class="flex items-center text-gray-700 font-semibold mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Tiến trình tính toán</span>
+        </div>
+        <div class="step-container">
+            <div class="step-line"></div>
+            <div class="step-progress" style="width: 100%;"></div>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-label">Sản lượng</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-label">Chất lượng</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Chi phí</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">Phát sinh</div>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-label">Phân bổ</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Section 1: Quỹ Lương Khoán -->
+    <div class="card mb-8">
+        <h2 class="section-header">A. BẢNG TÍNH QUỸ LƯƠNG KHOÁN</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Quỹ Lương Rung Ép -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">I. RUNG ÉP (Tổng 14,694.44 m²)</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-500">Tổng Quỹ Lương</span>
+                    <span id="re-fund-display" class="text-2xl font-bold text-blue-600"></span>
+                </div>
+                <div class="table-container">
+                    <table class="w-full text-left table-auto">
+                        <thead class="bg-blue-50">
+                            <tr>
+                                <th class="py-2 px-4">Chỉ tiêu</th>
+                                <th class="py-2 px-4 text-right">Sản lượng (m²)</th>
+                                <th class="py-2 px-4 text-right">Quỹ lương</th>
+                            </tr>
+                        </thead>
+                        <tbody id="re-fund-table" class="text-sm">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quỹ Lương Mài -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">II. MÀI (Tổng 28,585.6 m²)</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-500">Tổng Quỹ Lương</span>
+                    <span id="m-fund-display" class="text-2xl font-bold text-green-600"></span>
+                </div>
+                <div class="table-container">
+                    <table class="w-full text-left table-auto">
+                        <thead class="bg-green-50">
+                            <tr>
+                                <th class="py-2 px-4">Chỉ tiêu</th>
+                                <th class="py-2 px-4 text-right">Sản lượng (m²)</th>
+                                <th class="py-2 px-4 text-right">Quỹ lương</th>
+                            </tr>
+                        </thead>
+                        <tbody id="m-fund-table" class="text-sm">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Quỹ Thưởng - Phạt -->
+    <div class="card mb-8">
+        <h2 class="section-header">B. QUỸ THƯỞNG – PHẠT & PHÁT SINH KHÁC</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Thưởng & Phạt -->
+            <div class="table-container">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">III. Quỹ Thưởng – Phạt</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6">Chỉ tiêu</th>
+                            <th class="py-3 px-6 text-right">Giá trị (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quality-fund-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Chi phí & Phát sinh -->
+            <div class="table-container">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">IV. Quỹ lương chi phí & Phát sinh</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6">Khoản mục</th>
+                            <th class="py-3 px-6 text-right">Tổng tiền (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cost-fund-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Tổng hợp Quỹ Lương -->
+    <div class="card mb-8">
+        <h2 class="section-header">C. TỔNG HỢP QUỸ LƯƠNG</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+            <!-- RE Summary -->
+            <div class="bg-blue-50 p-6 rounded-lg">
+                <div class="flex flex-col items-center">
+                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Rung Ép</span>
+                    <span id="re-initial-fund" class="block text-2xl font-bold text-blue-700 mt-2"></span>
+                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ sau điều chỉnh</span>
+                    <span id="re-final-fund" class="block text-3xl font-bold text-blue-700 mt-2"></span>
+                </div>
+            </div>
+            <!-- Mài Summary -->
+            <div class="bg-green-50 p-6 rounded-lg">
+                <div class="flex flex-col items-center">
+                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Mài</span>
+                    <span id="m-initial-fund" class="block text-2xl font-bold text-green-700 mt-2"></span>
+                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ sau điều chỉnh</span>
+                    <span id="m-final-fund" class="block text-3xl font-bold text-green-700 mt-2"></span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center bg-gray-50 p-6 rounded-lg">
+            <span class="text-lg font-semibold text-gray-500">Tổng Quỹ Lương Sau Điều Chỉnh</span>
+            <span id="final-fund" class="block text-3xl font-bold text-gray-700 mt-2"></span>
+        </div>
+    </div>
+
+    <!-- Section 4: Phân Bổ Lương -->
+    <div class="card">
+        <h2 class="section-header">D. PHÂN BỔ LƯƠNG CHI TIẾT</h2>
+        <!-- New Combined Summary Table -->
+        <div class="table-container mb-8">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Tổng hợp Phân bổ</h3>
+            <table class="w-full text-left table-auto">
+                <thead>
+                    <tr class="bg-blue-100 text-blue-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6">Khối</th>
+                        <th class="py-3 px-6 text-right">Tổng số người</th>
+                        <th class="py-3 px-6 text-right">Tổng quỹ lương (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody id="combined-payroll-table" class="text-gray-600 text-sm font-light">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Khối Công nhân -->
+            <div class="table-container">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Khối 1 — CÔNG NHÂN</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6">Bộ phận</th>
+                            <th class="py-3 px-6 text-right">Số người</th>
+                            <th class="py-3 px-6 text-right">Quỹ lương (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="worker-payroll-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Khối Quản lý -->
+            <div class="table-container">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Khối 2 — QUẢN LÝ</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6">Bộ phận</th>
+                            <th class="py-3 px-6 text-right">Số người</th>
+                            <th class="py-3 px-6 text-right">Quỹ lương (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="management-payroll-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to format number as Vietnamese currency
+        const formatCurrency = (number) => {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(number);
+        };
+
+        // Function to format numbers with decimal places
+        const formatNumber = (number) => {
+            return new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
+        };
+
+        // Data based on the user's provided tables
+        const data = {
+            reFundData: [
+                { item: 'Nhóm 1RL', prod: 615.29, fund: 51683940 },
+                { item: 'Nhóm 1SL', prod: 3604.59, fund: 302785560 },
+                { item: 'Nhóm 2RL', prod: 1246.91, fund: 89777160 },
+                { item: 'Nhóm 2SL', prod: 4257.99, fund: 306575280 },
+                { item: 'Nhóm 4R', prod: 630.00, fund: 25200000 },
+                { item: 'Nhóm 4RL', prod: 909.32, fund: 43647120 },
+                { item: 'Nhóm 4SL', prod: 1442.93, fund: 69260400 },
+                { item: 'Nhóm 6RL', prod: 751.41, fund: 18033840 },
+                { item: 'Nhóm 6SL', prod: 1236.02, fund: 29664360 },
+            ],
+            reTotalFund: 994882800,
+            
+            mFundData: [
+                { item: 'Nhóm 1', prod: 8337.8, fund: 83377650 },
+                { item: 'Nhóm 2', prod: 10866.1, fund: 97794945 },
+                { item: 'Nhóm 3', prod: 2613.6, fund: 20908680 },
+                { item: 'Nhóm 4', prod: 6768.1, fund: 47376847 },
+            ],
+            mTotalFund: 249458122,
+
+            qualityFunds: [
+                { item: 'Điểm bảo dưỡng TB cấp 1,2 – RE', value: -7347218 },
+                { item: 'Điểm bảo dưỡng TB cấp 1,2 – Mài', value: -4287836 },
+                { item: 'Điểm vệ sinh 5S – RE', value: -8000000 },
+                { item: 'Điểm vệ sinh 5S – Mài', value: -6000000 },
+                { item: 'm2A1 phạt nhóm 1–4', value: -26503193 },
+            ],
+
+            costFunds: [
+                { item: 'Nguyên vật liệu RE', value: 75511033 },
+                { item: 'Điện RE', value: -29944462 },
+                { item: 'Điện Mài', value: 12763461 },
+                { item: 'Tiền chạy mẫu', value: 45000000 },
+                { item: 'RE nhận hỗ trợ', value: -3600000 },
+                { item: 'HC dừng theo KH', value: 212400000 },
+            ],
+            
+            workerPayroll: [
+                { role: 'CN thiết bị', count: 2.30, payroll: 38446530 },
+                { role: 'CBSX', count: 0.92, payroll: 24170767 },
+                { role: 'Sửa đá', count: 2.22, payroll: 42586590 },
+                { role: 'Trường ca hành chính', count: 4.85, payroll: 128910760 },
+                { role: 'CN Rung ép', count: 48.53, payroll: 924244109 },
+                { role: 'CN Mài hoàn thiện', count: 18.79, payroll: 265586812 },
+            ],
+            managementPayroll: [
+                { role: 'Trưởng đơn vị', count: 1.00, payroll: 60469899 },
+                { role: 'Phó trưởng đơn vị', count: 1.00, payroll: 46373037 },
+                { role: 'Khối kỹ sư Mài', count: 1.00, payroll: 20530857 },
+                { role: 'Khối kỹ sư Thiết bị', count: 1.00, payroll: 22445587 },
+                { role: 'Khối kỹ sư Rung ép', count: 5.00, payroll: 122567996 },
+            ]
+        };
+        
+        // Calculate adjustments and final funds
+        const reAdjustments = data.qualityFunds.find(q => q.item.includes('RE'))?.value + 
+                              data.costFunds.find(c => c.item.includes('Nguyên vật liệu RE'))?.value +
+                              data.costFunds.find(c => c.item.includes('Điện RE'))?.value +
+                              data.costFunds.find(c => c.item.includes('RE nhận hỗ trợ'))?.value +
+                              data.costFunds.find(c => c.item.includes('HC dừng theo KH'))?.value +
+                              data.qualityFunds.find(q => q.item.includes('vệ sinh 5S – RE'))?.value || 0;
+        
+        const mAdjustments = data.qualityFunds.find(q => q.item.includes('Mài'))?.value + 
+                             data.qualityFunds.find(q => q.item.includes('m2A1'))?.value + 
+                             data.costFunds.find(c => c.item.includes('Điện Mài'))?.value +
+                             data.costFunds.find(c => c.item.includes('Tiền chạy mẫu'))?.value +
+                             data.qualityFunds.find(q => q.item.includes('vệ sinh 5S – Mài'))?.value || 0;
+        
+        const reFinalFund = data.reTotalFund + reAdjustments;
+        const mFinalFund = data.mTotalFund + mAdjustments;
+        const totalFinalFund = reFinalFund + mFinalFund;
+
+
+        // Populate RE Fund Table
+        document.getElementById('re-fund-display').textContent = formatCurrency(data.reTotalFund);
+        const reTableBody = document.getElementById('re-fund-table');
+        reTableBody.innerHTML = '';
+        data.reFundData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="py-2 px-4">${item.item}</td>
+                <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
+                <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+            `;
+            reTableBody.appendChild(row);
+        });
+
+        // Populate M Fund Table
+        document.getElementById('m-fund-display').textContent = formatCurrency(data.mTotalFund);
+        const mTableBody = document.getElementById('m-fund-table');
+        mTableBody.innerHTML = '';
+        data.mFundData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="py-2 px-4">${item.item}</td>
+                <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
+                <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+            `;
+            mTableBody.appendChild(row);
+        });
+
+        // Populate Quality Funds Table
+        const qualityTableBody = document.getElementById('quality-fund-table');
+        qualityTableBody.innerHTML = '';
+        data.qualityFunds.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-200 hover:bg-gray-100';
+            row.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">${item.item}</td>
+                <td class="py-3 px-6 text-right">${formatCurrency(item.value)}</td>
+            `;
+            qualityTableBody.appendChild(row);
+        });
+
+        // Populate Cost Funds Table
+        const costTableBody = document.getElementById('cost-fund-table');
+        costTableBody.innerHTML = '';
+        data.costFunds.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-200 hover:bg-gray-100';
+            row.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">${item.item}</td>
+                <td class="py-3 px-6 text-right">${formatCurrency(item.value)}</td>
+            `;
+            costTableBody.appendChild(row);
+        });
+        
+        // Populate Tổng hợp Quỹ Lương
+        document.getElementById('re-initial-fund').textContent = formatCurrency(data.reTotalFund);
+        document.getElementById('re-final-fund').textContent = formatCurrency(reFinalFund);
+        document.getElementById('m-initial-fund').textContent = formatCurrency(data.mTotalFund);
+        document.getElementById('m-final-fund').textContent = formatCurrency(mFinalFund);
+        document.getElementById('final-fund').textContent = formatCurrency(totalFinalFund);
+
+        // Populate Combined Payroll Table
+        const combinedTableBody = document.getElementById('combined-payroll-table');
+        combinedTableBody.innerHTML = '';
+        
+        const totalWorkerCount = data.workerPayroll.reduce((sum, item) => sum + item.count, 0);
+        const totalWorkerPayroll = data.workerPayroll.reduce((sum, item) => sum + item.payroll, 0);
+        const workerRow = document.createElement('tr');
+        workerRow.className = 'border-b border-gray-200 hover:bg-gray-100';
+        workerRow.innerHTML = `
+            <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Công nhân</td>
+            <td class="py-3 px-6 text-right font-semibold">${formatNumber(totalWorkerCount)}</td>
+            <td class="py-3 px-6 text-right font-semibold text-blue-600">${formatCurrency(totalWorkerPayroll)}</td>
+        `;
+        combinedTableBody.appendChild(workerRow);
+        
+        const totalManagementCount = data.managementPayroll.reduce((sum, item) => sum + item.count, 0);
+        const totalManagementPayroll = data.managementPayroll.reduce((sum, item) => sum + item.payroll, 0);
+        const managementRow = document.createElement('tr');
+        managementRow.className = 'border-b border-gray-200 hover:bg-gray-100';
+        managementRow.innerHTML = `
+            <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Quản lý</td>
+            <td class="py-3 px-6 text-right font-semibold">${formatNumber(totalManagementCount)}</td>
+            <td class="py-3 px-6 text-right font-semibold text-green-600">${formatCurrency(totalManagementPayroll)}</td>
+        `;
+        combinedTableBody.appendChild(managementRow);
+        
+        const totalOverallCount = totalWorkerCount + totalManagementCount;
+        const totalOverallPayroll = totalWorkerPayroll + totalManagementPayroll;
+        const totalRow = document.createElement('tr');
+        totalRow.className = 'border-b border-gray-200 hover:bg-gray-100 bg-gray-100';
+        totalRow.innerHTML = `
+            <td class="py-3 px-6 whitespace-nowrap font-bold text-gray-700">Tổng cộng</td>
+            <td class="py-3 px-6 text-right font-bold text-gray-700">${formatNumber(totalOverallCount)}</td>
+            <td class="py-3 px-6 text-right font-bold text-gray-700">${formatCurrency(totalOverallPayroll)}</td>
+        `;
+        combinedTableBody.appendChild(totalRow);
+
+
+        // Populate Worker Payroll Table
+        const workerTableBody = document.getElementById('worker-payroll-table');
+        workerTableBody.innerHTML = ''; 
+        data.workerPayroll.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-200 hover:bg-gray-100';
+            row.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">${item.role}</td>
+                <td class="py-3 px-6 text-right">${formatNumber(item.count)}</td>
+                <td class="py-3 px-6 text-right">${formatCurrency(item.payroll)}</td>
+            `;
+            workerTableBody.appendChild(row);
+        });
+
+        // Populate Management Payroll Table
+        const managementTableBody = document.getElementById('management-payroll-table');
+        managementTableBody.innerHTML = '';
+        data.managementPayroll.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-200 hover:bg-gray-100';
+            row.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">${item.role}</td>
+                <td class="py-3 px-6 text-right">${formatNumber(item.count)}</td>
+                <td class="py-3 px-6 text-right">${formatCurrency(item.payroll)}</td>
+            `;
+            managementTableBody.appendChild(row);
+        });
+    </script>
+</body>
+</html>
