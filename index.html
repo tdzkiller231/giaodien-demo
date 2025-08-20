@@ -51,19 +51,25 @@
             background: #3b82f6;
             transform: translateY(-50%);
             z-index: 1;
-            width: 100%; /* Default to full width for demo */
+            width: 0%; /* Start at 0% and update with JS */
+            transition: width 0.3s ease-in-out;
         }
         .step {
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 2;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+        .step:hover {
+            transform: scale(1.05);
         }
         .step-number {
             width: 40px;
             height: 40px;
-            background-color: #3b82f6;
-            color: white;
+            background-color: #e2e8f0;
+            color: #4a5568;
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -71,6 +77,11 @@
             font-weight: bold;
             font-size: 1.25rem;
             margin-bottom: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .step.active .step-number {
+            background-color: #3b82f6;
+            color: white;
         }
         .step-label {
             color: #4a5568;
@@ -109,7 +120,7 @@
         <h1 class="text-4xl font-bold text-gray-800">Hệ thống tính lương khoán</h1>
         <p class="text-gray-500 mt-2">Quản lý và phân bổ quỹ lương theo sản lượng</p>
 
-        <!-- Dropdown để chọn tháng -->
+        <!-- Dropdown to select month -->
         <div class="absolute top-0 right-0 mt-2 mr-2">
             <label for="month-select" class="sr-only">Chọn tháng</label>
             <select id="month-select" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
@@ -139,74 +150,210 @@
         </div>
         <div class="step-container">
             <div class="step-line"></div>
-            <div class="step-progress" style="width: 100%;"></div>
-            <div class="step">
+            <div id="step-progress" class="step-progress"></div>
+            <div id="step-1" class="step" data-step="1">
                 <div class="step-number">1</div>
                 <div class="step-label">Sản lượng</div>
             </div>
-            <div class="step">
+            <div id="step-2" class="step" data-step="2">
                 <div class="step-number">2</div>
                 <div class="step-label">Chất lượng</div>
             </div>
-            <div class="step">
+            <div id="step-3" class="step" data-step="3">
                 <div class="step-number">3</div>
                 <div class="step-label">Chi phí</div>
             </div>
-            <div class="step">
+            <div id="step-4" class="step" data-step="4">
                 <div class="step-number">4</div>
                 <div class="step-label">Phát sinh</div>
             </div>
-            <div class="step">
+            <div id="step-5" class="step" data-step="5">
                 <div class="step-number">5</div>
                 <div class="step-label">Phân bổ</div>
             </div>
         </div>
     </div>
     
-    <!-- Section 1: Quỹ Lương Khoán -->
-    <div class="card mb-8">
-        <h2 class="section-header">A. BẢNG TÍNH QUỸ LƯƠNG KHOÁN</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Quỹ Lương Rung Ép -->
-            <div class="bg-gray-50 p-6 rounded-lg">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">I. RUNG ÉP (Tổng 14,694.44 m²)</h3>
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-500">Tổng Quỹ Lương</span>
-                    <span id="re-fund-display" class="text-2xl font-bold text-blue-600"></span>
+    <!-- Main Dashboard View -->
+    <div id="dashboard-view" class="hidden">
+        <!-- Section 1: Quỹ Lương Khoán -->
+        <div class="card mb-8">
+            <h2 class="section-header">A. BẢNG TÍNH QUỸ LƯƠNG KHOÁN</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Quỹ Lương Rung Ép -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">I. RUNG ÉP (Tổng 14,694.44 m²)</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-500">Tổng Quỹ Lương</span>
+                        <span id="re-fund-display" class="text-2xl font-bold text-blue-600"></span>
+                    </div>
+                    <div class="table-container">
+                        <table class="w-full text-left table-auto">
+                            <thead class="bg-blue-50">
+                                <tr>
+                                    <th class="py-2 px-4">Chỉ tiêu</th>
+                                    <th class="py-2 px-4 text-right">Sản lượng (m²)</th>
+                                    <th class="py-2 px-4 text-right">Quỹ lương</th>
+                                </tr>
+                            </thead>
+                            <tbody id="re-fund-table" class="text-sm">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+                <!-- Quỹ Lương Mài -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">II. MÀI (Tổng 28,585.6 m²)</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-gray-500">Tổng Quỹ Lương</span>
+                        <span id="m-fund-display" class="text-2xl font-bold text-green-600"></span>
+                    </div>
+                    <div class="table-container">
+                        <table class="w-full text-left table-auto">
+                            <thead class="bg-green-50">
+                                <tr>
+                                    <th class="py-2 px-4">Chỉ tiêu</th>
+                                    <th class="py-2 px-4 text-right">Sản lượng (m²)</th>
+                                    <th class="py-2 px-4 text-right">Quỹ lương</th>
+                                </tr>
+                            </thead>
+                            <tbody id="m-fund-table" class="text-sm">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Quỹ Thưởng - Phạt -->
+        <div class="card mb-8">
+            <h2 class="section-header">B. QUỸ THƯỞNG – PHẠT & PHÁT SINH KHÁC</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Thưởng & Phạt -->
                 <div class="table-container">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">III. Quỹ Thưởng – Phạt</h3>
                     <table class="w-full text-left table-auto">
-                        <thead class="bg-blue-50">
-                            <tr>
-                                <th class="py-2 px-4">Chỉ tiêu</th>
-                                <th class="py-2 px-4 text-right">Sản lượng (m²)</th>
-                                <th class="py-2 px-4 text-right">Quỹ lương</th>
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6">Chỉ tiêu</th>
+                                <th class="py-3 px-6 text-right">Giá trị (VNĐ)</th>
                             </tr>
                         </thead>
-                        <tbody id="re-fund-table" class="text-sm">
+                        <tbody id="quality-fund-table" class="text-gray-600 text-sm font-light">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Chi phí & Phát sinh -->
+                <div class="table-container">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">IV. Quỹ lương chi phí & Phát sinh</h3>
+                    <table class="w-full text-left table-auto">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6">Khoản mục</th>
+                                <th class="py-3 px-6 text-right">Tổng tiền (VNĐ)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cost-fund-table" class="text-gray-600 text-sm font-light">
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Quỹ Lương Mài -->
-            <div class="bg-gray-50 p-6 rounded-lg">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">II. MÀI (Tổng 28,585.6 m²)</h3>
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-500">Tổng Quỹ Lương</span>
-                    <span id="m-fund-display" class="text-2xl font-bold text-green-600"></span>
+        <!-- Section 3: Tổng hợp Quỹ Lương -->
+        <div class="card mb-8">
+            <h2 class="section-header">C. TỔNG HỢP QUỸ LƯƠNG</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <!-- RE Summary -->
+                <div class="bg-blue-50 p-6 rounded-lg">
+                    <div class="flex flex-col items-center">
+                        <span class="text-lg font-semibold text-gray-500">Quỹ Lương Rung Ép Ban Đầu</span>
+                        <span id="re-initial-fund" class="block text-2xl font-bold text-blue-700 mt-2"></span>
+                        <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ Lương Rung Ép Còn Lại</span>
+                        <span id="re-final-fund" class="block text-3xl font-bold text-blue-700 mt-2"></span>
+                    </div>
                 </div>
+                <!-- Mài Summary -->
+                <div class="bg-green-50 p-6 rounded-lg">
+                    <div class="flex flex-col items-center">
+                        <span class="text-lg font-semibold text-gray-500">Quỹ Lương Mài Ban Đầu</span>
+                        <span id="m-initial-fund" class="block text-2xl font-bold text-green-700 mt-2"></span>
+                        <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ Lương Mài Còn Lại</span>
+                        <span id="m-final-fund" class="block text-3xl font-bold text-green-700 mt-2"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center bg-gray-50 p-6 rounded-lg">
+                <span class="text-lg font-semibold text-gray-500">Tổng Quỹ Lương Còn Lại</span>
+                <span id="final-fund" class="block text-3xl font-bold text-gray-700 mt-2"></span>
+            </div>
+        </div>
+
+        <!-- Section 4: Phân Bổ Lương -->
+        <div class="card">
+            <h2 class="section-header">D. PHÂN BỔ LƯƠNG CHI TIẾT</h2>
+            <!-- New Combined Summary Table -->
+            <div class="table-container mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Tổng hợp Phân bổ</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-blue-100 text-blue-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6">Khối</th>
+                            <th class="py-3 px-6 text-right">Tổng số người</th>
+                            <th class="py-3 px-6 text-right">Tổng quỹ lương (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="combined-payroll-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Khối Công nhân -->
                 <div class="table-container">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Khối 1 — CÔNG NHÂN</h3>
                     <table class="w-full text-left table-auto">
-                        <thead class="bg-green-50">
-                            <tr>
-                                <th class="py-2 px-4">Chỉ tiêu</th>
-                                <th class="py-2 px-4 text-right">Sản lượng (m²)</th>
-                                <th class="py-2 px-4 text-right">Quỹ lương</th>
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6">Bộ phận</th>
+                                <th class="py-3 px-6">Nguồn Quỹ</th>
+                                <th class="py-3 px-6 text-right text-nowrap">Tỉ lệ (%)</th>
+                                <th class="py-3 px-6 text-right text-nowrap">Quỹ lương (VNĐ)</th>
+                                <th class="py-3 px-6 text-right text-nowrap">Số nhân sự</th>
+                                <th class="py-3 px-6 text-right text-nowrap">Lương TB (VNĐ)</th>
                             </tr>
                         </thead>
-                        <tbody id="m-fund-table" class="text-sm">
+                        <tbody id="worker-payroll-table" class="text-gray-600 text-sm font-light">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Khối Quản lý và Kỹ sư -->
+                <div class="table-container">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Khối 2 — QUẢN LÝ VÀ KỸ SƯ</h3>
+                    <table class="w-full text-left table-auto">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-nowrap">Bộ phận</th>
+                                <th class="py-3 px-6 text-nowrap text-right">BSC (%)</th>
+                                <th class="py-3 px-6 text-nowrap text-right">Hệ số khoán</th>
+                                <th class="py-3 px-6 text-nowrap text-right">Hệ số 3P</th>
+                                <th class="py-3 px-6 text-nowrap text-right">Lương hệ số khoán</th>
+                                <th class="py-3 px-6 text-nowrap text-right">Lương trần 3P</th>
+                                <th class="py-3 px-6 text-nowrap text-right">Lương khoán</th>
+                                <th class="py-3 px-6 text-nowrap text-right">Số nhân sự</th>
+                                <th class="py-3 px-6 text-nowrap text-right">Lương TB</th>
+                            </tr>
+                        </thead>
+                        <tbody id="management-payroll-table" class="text-gray-600 text-sm font-light">
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
@@ -214,133 +361,64 @@
             </div>
         </div>
     </div>
-
-    <!-- Section 2: Quỹ Thưởng - Phạt -->
-    <div class="card mb-8">
-        <h2 class="section-header">B. QUỸ THƯỞNG – PHẠT & PHÁT SINH KHÁC</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Thưởng & Phạt -->
-            <div class="table-container">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">III. Quỹ Thưởng – Phạt</h3>
-                <table class="w-full text-left table-auto">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6">Chỉ tiêu</th>
-                            <th class="py-3 px-6 text-right">Giá trị (VNĐ)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="quality-fund-table" class="text-gray-600 text-sm font-light">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+    
+    <!-- Production Input View (Initially hidden) -->
+    <div id="production-input-view" class="hidden">
+        <div class="card mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="section-header">Nhập Sản Lượng</h2>
+                <button id="save-and-return-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                    Lưu & Trở về
+                </button>
             </div>
-
-            <!-- Chi phí & Phát sinh -->
             <div class="table-container">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">IV. Quỹ lương chi phí & Phát sinh</h3>
                 <table class="w-full text-left table-auto">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6">Khoản mục</th>
-                            <th class="py-3 px-6 text-right">Tổng tiền (VNĐ)</th>
+                            <th class="py-3 px-6">Tên sản phẩm</th>
+                            <th class="py-3 px-6">Nhóm sản phẩm</th>
+                            <th class="py-3 px-6">Tổ sản xuất</th>
+                            <th class="py-3 px-6 text-right">Đơn giá (VNĐ)</th>
+                            <th class="py-3 px-6 text-right">Sản lượng (m²)</th>
+                            <th class="py-3 px-6 text-right">Thành tiền (VNĐ)</th>
                         </tr>
                     </thead>
-                    <tbody id="cost-fund-table" class="text-gray-600 text-sm font-light">
+                    <tbody id="production-input-table" class="text-gray-600 text-sm font-light">
                         <!-- Populated by JS -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-
-    <!-- Section 3: Tổng hợp Quỹ Lương -->
-    <div class="card mb-8">
-        <h2 class="section-header">C. TỔNG HỢP QUỸ LƯƠNG</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
-            <!-- RE Summary -->
-            <div class="bg-blue-50 p-6 rounded-lg">
-                <div class="flex flex-col items-center">
-                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Rung Ép Ban Đầu</span>
-                    <span id="re-initial-fund" class="block text-2xl font-bold text-blue-700 mt-2"></span>
-                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ Lương Rung Ép Còn Lại</span>
-                    <span id="re-final-fund" class="block text-3xl font-bold text-blue-700 mt-2"></span>
-                </div>
+    
+    <!-- Quality Input View (Initially hidden) -->
+    <div id="quality-input-view" class="hidden">
+        <div class="card mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="section-header">Nhập Chất Lượng</h2>
+                <button id="save-and-return-quality-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                    Lưu & Trở về
+                </button>
             </div>
-            <!-- Mài Summary -->
-            <div class="bg-green-50 p-6 rounded-lg">
-                <div class="flex flex-col items-center">
-                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Mài Ban Đầu</span>
-                    <span id="m-initial-fund" class="block text-2xl font-bold text-green-700 mt-2"></span>
-                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ Lương Mài Còn Lại</span>
-                    <span id="m-final-fund" class="block text-3xl font-bold text-green-700 mt-2"></span>
-                </div>
-            </div>
-        </div>
-        <div class="mt-8 text-center bg-gray-50 p-6 rounded-lg">
-            <span class="text-lg font-semibold text-gray-500">Tổng Quỹ Lương Còn Lại</span>
-            <span id="final-fund" class="block text-3xl font-bold text-gray-700 mt-2"></span>
-        </div>
-    </div>
-
-    <!-- Section 4: Phân Bổ Lương -->
-    <div class="card">
-        <h2 class="section-header">D. PHÂN BỔ LƯƠNG CHI TIẾT</h2>
-        <!-- New Combined Summary Table -->
-        <div class="table-container mb-8">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4">Tổng hợp Phân bổ</h3>
-            <table class="w-full text-left table-auto">
-                <thead>
-                    <tr class="bg-blue-100 text-blue-600 uppercase text-sm leading-normal">
-                        <th class="py-3 px-6">Khối</th>
-                        <th class="py-3 px-6 text-right">Tổng số người</th>
-                        <th class="py-3 px-6 text-right">Tổng quỹ lương (VNĐ)</th>
-                    </tr>
-                </thead>
-                <tbody id="combined-payroll-table" class="text-gray-600 text-sm font-light">
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Khối Công nhân -->
             <div class="table-container">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Khối 1 — CÔNG NHÂN</h3>
                 <table class="w-full text-left table-auto">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6">Bộ phận</th>
-                            <th class="py-3 px-6">Nguồn Quỹ</th>
-                            <th class="py-3 px-6 text-right text-nowrap">Tỉ lệ (%)</th>
-                            <th class="py-3 px-6 text-right text-nowrap">Quỹ lương (VNĐ)</th>
-                            <th class="py-3 px-6 text-right text-nowrap">Số nhân sự</th>
-                            <th class="py-3 px-6 text-right text-nowrap">Lương TB (VNĐ)</th>
+                            <th class="py-3 px-6">Tổ sản xuất</th>
+                            <th class="py-3 px-6">Nhóm sản phẩm</th>
+                            <th class="py-3 px-6 text-right">M2 Rung ép (m²)</th>
+                            <th class="py-3 px-6 text-right">%A1 chỉ tiêu</th>
+                            <th class="py-3 px-6 text-right">%A1 thực tế</th>
+                            <th class="py-3 px-6 text-right">M2 thưởng phạt ban đầu</th>
+                            <th class="py-3 px-6 text-right">Đơn giá</th>
+                            <th class="py-3 px-6 text-right">Thành tiền</th>
+                            <th class="py-3 px-6 text-right">%A1 cuối cùng</th>
+                            <th class="py-3 px-6 text-right">%C</th>
+                            <th class="py-3 px-6 text-right">A1 m2 thưởng phạt</th>
+                            <th class="py-3 px-6 text-right">C m2 phạt</th>
                         </tr>
                     </thead>
-                    <tbody id="worker-payroll-table" class="text-gray-600 text-sm font-light">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Khối Quản lý -->
-            <div class="table-container">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Khối 2 — QUẢN LÝ</h3>
-                <table class="w-full text-left table-auto">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6 text-nowrap">Bộ phận</th>
-                            <th class="py-3 px-6 text-nowrap text-right">BSC (%)</th>
-                            <th class="py-3 px-6 text-nowrap text-right">Hệ số khoán</th>
-                            <th class="py-3 px-6 text-nowrap text-right">Hệ số 3P</th>
-                            <th class="py-3 px-6 text-nowrap text-right">Lương hệ số khoán</th>
-                            <th class="py-3 px-6 text-nowrap text-right">Lương trần 3P</th>
-                            <th class="py-3 px-6 text-nowrap text-right">Lương khoán</th>
-                            <th class="py-3 px-6 text-nowrap text-right">Số nhân sự</th>
-                            <th class="py-3 px-6 text-nowrap text-right">Lương TB</th>
-                        </tr>
-                    </thead>
-                    <tbody id="management-payroll-table" class="text-gray-600 text-sm font-light">
+                    <tbody id="quality-input-table" class="text-gray-600 text-sm font-light">
                         <!-- Populated by JS -->
                     </tbody>
                 </table>
@@ -349,19 +427,6 @@
     </div>
 
     <script>
-        // Function to format number as Vietnamese currency
-        const formatCurrency = (number) => {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(number);
-        };
-
-        // Function to format numbers with decimal places
-        const formatNumber = (number) => {
-            return new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
-        };
-
         // Data based on the user's provided tables
         const data = {
             reFundData: [
@@ -402,7 +467,6 @@
                 { item: 'HC dừng theo KH', value: 212400000 },
             ],
             
-            // Updated with initial values for calculation
             managementPayroll: [
                 { role: 'Trưởng đơn vị', count: 1.00, initialHeSoKhoan: 1.5, initialHeSo3P: 1.8, fixedPayroll: 60469899 },
                 { role: 'Phó trưởng đơn vị', count: 1.00, initialHeSoKhoan: 1.4, initialHeSo3P: 1.7, fixedPayroll: 46373037 },
@@ -412,7 +476,6 @@
             ],
             companyFundAdjustment: 40000000,
             
-            // New hard-coded data for worker departments based on user request
             workerDepartments: [
                 { role: 'CN thiết bị', fundSource: 'RE', initialRatio: 0.05, headcount: 2.30 },
                 { role: 'CBSX', fundSource: 'RE', initialRatio: 0.02, headcount: 0.92 },
@@ -420,16 +483,183 @@
                 { role: 'Trường ca hành chính', fundSource: 'RE', initialRatio: 0.1, headcount: 4.85 },
                 { role: 'CN Rung ép', fundSource: 'RE', initialRatio: 0.6, headcount: 48.53 },
                 { role: 'CN Mài hoàn thiện', fundSource: 'Mài', initialRatio: 1.0, headcount: 18.79 },
+            ],
+
+            // New hard-coded data for production input table based on the CSV snippet
+            productionInputData: [
+                { product: 'A', group: 'Nhóm 1SL', unitPrice: 84000, team: 'RE1', quantity: 130.68 },
+                { product: 'B', group: 'Nhóm 1RL', unitPrice: 84000, team: 'RE2', quantity: 201.465 },
+                { product: 'C', group: 'Nhóm 1SL', unitPrice: 84000, team: 'RE3', quantity: 451.935 },
+                { product: 'D', group: 'Nhóm 2SL', unitPrice: 72000, team: 'RE4', quantity: 4257.99 },
+                { product: 'E', group: 'Nhóm 2RL', unitPrice: 72000, team: 'RE1', quantity: 1246.91 },
+                { product: 'F', group: 'Nhóm 4RL', unitPrice: 48000, team: 'RE2', quantity: 909.32 },
+                { product: 'G', group: 'Nhóm 4SL', unitPrice: 48000, team: 'RE3', quantity: 1442.93 },
+                { product: 'H', group: 'Nhóm 6RL', unitPrice: 24000, team: 'RE4', quantity: 751.41 },
+                { product: 'I', group: 'Nhóm 6SL', unitPrice: 24000, team: 'RE1', quantity: 1236.02 },
+            ],
+            
+            // New hard-coded data for quality input table
+            qualityInputData: [
+                { team: 'RE1', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { team: 'RE2', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { team: 'RE3', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { team: 'RE4', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { team: 'RE1', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { team: 'RE2', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { team: 'RE3', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { team: 'RE4', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
             ]
         };
-        
-        // --- GLOBAL VARIABLES FOR FUND AMOUNTS ---
+
+        // --- GLOBAL VARIABLES ---
         let reRemainingFund = 0;
         let mRemainingFund = 0;
+        let activeStep = 1;
 
-        // --- CALCULATION LOGIC ---
+        // --- UTILITY FUNCTIONS ---
+        const formatCurrency = (number) => {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        };
+        const formatNumber = (number) => {
+            return new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
+        };
+        const calculateProgressWidth = (step) => {
+            const totalSteps = 5;
+            return (step - 1) * (100 / (totalSteps - 1));
+        };
+
+        // --- RENDER FUNCTIONS FOR VIEWS AND DATA ---
+        function hideAllViews() {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('production-input-view').classList.add('hidden');
+            document.getElementById('quality-input-view').classList.add('hidden');
+        }
+
+        function renderDashboardView() {
+            hideAllViews();
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            calculateAndRender();
+        }
+
+        function renderProductionInputView() {
+            hideAllViews();
+            document.getElementById('production-input-view').classList.remove('hidden');
+            
+            const tableBody = document.getElementById('production-input-table');
+            tableBody.innerHTML = '';
+            
+            data.productionInputData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 whitespace-nowrap">${item.product}</td>
+                    <td class="py-3 px-6 whitespace-nowrap">${item.group}</td>
+                    <td class="py-3 px-6 whitespace-nowrap">${item.team}</td>
+                    <td class="py-3 px-6 text-right">${formatCurrency(item.unitPrice)}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input text-right" value="${item.quantity}" data-index="${index}" min="0" step="1">
+                    </td>
+                    <td class="py-3 px-6 text-right" data-total-price>
+                        ${formatCurrency(item.unitPrice * item.quantity)}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Add event listener to handle production input changes
+            tableBody.addEventListener('input', (event) => {
+                const input = event.target;
+                if (input.tagName === 'INPUT') {
+                    const index = input.getAttribute('data-index');
+                    const newQuantity = parseFloat(input.value) || 0;
+                    data.productionInputData[index].quantity = newQuantity;
+                    
+                    const totalPrice = newQuantity * data.productionInputData[index].unitPrice;
+                    const priceCell = input.closest('tr').querySelector('[data-total-price]');
+                    priceCell.textContent = formatCurrency(totalPrice);
+                }
+            });
+        }
+        
+        function renderQualityInputView() {
+            hideAllViews();
+            document.getElementById('quality-input-view').classList.remove('hidden');
+            
+            const tableBody = document.getElementById('quality-input-table');
+            tableBody.innerHTML = '';
+
+            // Aggregate RE quantities from productionInputData
+            const teamQuantities = new Map();
+            data.productionInputData.forEach(prod => {
+                const key = `${prod.team}-${prod.group}`;
+                const currentQty = teamQuantities.get(key) || 0;
+                teamQuantities.set(key, currentQty + prod.quantity);
+            });
+
+            data.qualityInputData.forEach((item, index) => {
+                const key = `${item.team}-${item.productGroup}`;
+                const m2RE = teamQuantities.get(key) || 0;
+
+                const initialBonusPenalty = (item.actualA1 - item.targetA1) * m2RE;
+                const totalPrice = initialBonusPenalty * item.unitPrice;
+                const a1BonusPenalty = (item.finalA1 - 98.5) * m2RE;
+                const cPenalty = (item.actualC - 0.02) * m2RE;
+
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 whitespace-nowrap">${item.team}</td>
+                    <td class="py-3 px-6 whitespace-nowrap">${item.productGroup}</td>
+                    <td class="py-3 px-6 text-right">${formatNumber(m2RE)}</td>
+                    <td class="py-3 px-6 text-right">${item.targetA1.toFixed(1)}%</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input text-right" value="${item.actualA1}" data-index="${index}" data-type="actualA1" min="0" step="0.1">
+                    </td>
+                    <td class="py-3 px-6 text-right" data-initial-bonus-penalty>${formatNumber(initialBonusPenalty)}</td>
+                    <td class="py-3 px-6 text-right">${formatCurrency(item.unitPrice)}</td>
+                    <td class="py-3 px-6 text-right font-semibold text-blue-600" data-total-price>${formatCurrency(totalPrice)}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input text-right" value="${item.finalA1}" data-index="${index}" data-type="finalA1" min="0" step="0.1">
+                    </td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input text-right" value="${item.actualC}" data-index="${index}" data-type="actualC" min="0" step="0.001">
+                    </td>
+                    <td class="py-3 px-6 text-right font-semibold" data-a1-bonus-penalty>${formatNumber(a1BonusPenalty)}</td>
+                    <td class="py-3 px-6 text-right font-semibold" data-c-penalty>${formatNumber(cPenalty)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listener to handle quality input changes
+            tableBody.addEventListener('input', (event) => {
+                const input = event.target;
+                if (input.tagName === 'INPUT') {
+                    const index = input.getAttribute('data-index');
+                    const type = input.getAttribute('data-type');
+                    const newValue = parseFloat(input.value) || 0;
+                    data.qualityInputData[index][type] = newValue;
+
+                    const item = data.qualityInputData[index];
+                    const key = `${item.team}-${item.productGroup}`;
+                    const m2RE = teamQuantities.get(key) || 0;
+                    
+                    const initialBonusPenalty = (item.actualA1 - item.targetA1) * m2RE;
+                    const totalPrice = initialBonusPenalty * item.unitPrice;
+                    const a1BonusPenalty = (item.finalA1 - 98.5) * m2RE;
+                    const cPenalty = (item.actualC - 0.02) * m2RE;
+
+                    const row = input.closest('tr');
+                    row.querySelector('[data-initial-bonus-penalty]').textContent = formatNumber(initialBonusPenalty);
+                    row.querySelector('[data-total-price]').textContent = formatCurrency(totalPrice);
+                    row.querySelector('[data-a1-bonus-penalty]').textContent = formatNumber(a1BonusPenalty);
+                    row.querySelector('[data-c-penalty]').textContent = formatNumber(cPenalty);
+                }
+            });
+        }
+
+        // Main calculation and render function for the dashboard
         function calculateAndRender() {
-            // Step 1: Calculate the "Initial Fund" by adding production fund and other adjustments.
+            // Step 1: Calculate the "Initial Fund"
             const reAdjustments = data.qualityFunds.filter(q => q.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) + 
                                   data.costFunds.filter(c => c.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) +
                                   data.qualityFunds.filter(q => q.item.includes('vệ sinh 5S – RE')).reduce((sum, item) => sum + item.value, 0) +
@@ -444,7 +674,7 @@
             const reInitialAdjustedFund = data.reTotalFund + reAdjustments;
             const mInitialAdjustedFund = data.mTotalFund + mAdjustments;
 
-            // Step 2: Calculate the "Remaining Fund" by further adjusting with the Company Fund.
+            // Step 2: Calculate the "Remaining Fund"
             const totalInitialAdjustedFund = reInitialAdjustedFund + mInitialAdjustedFund;
             const reCompanyFundPortion = (reInitialAdjustedFund / totalInitialAdjustedFund) * data.companyFundAdjustment;
             const mCompanyFundPortion = (mInitialAdjustedFund / totalInitialAdjustedFund) * data.companyFundAdjustment;
@@ -516,7 +746,6 @@
             updateManagementPayroll();
         }
 
-        // --- NEW LOGIC FOR WORKER PAYROLL DISTRIBUTION ---
         function renderWorkerPayrollTable() {
             const workerTableBody = document.getElementById('worker-payroll-table');
             workerTableBody.innerHTML = ''; 
@@ -536,8 +765,6 @@
                 `;
                 workerTableBody.appendChild(row);
             });
-
-            // Add event listener to the table body to handle changes on any input
             workerTableBody.addEventListener('input', updateWorkerPayroll);
         }
 
@@ -571,7 +798,6 @@
                 totalWorkerCount += department.headcount;
             });
             
-            // Update combined summary table
             updateCombinedSummary(totalWorkerPayroll, totalWorkerCount);
         }
 
@@ -594,7 +820,7 @@
             const managementRow = document.createElement('tr');
             managementRow.className = 'border-b border-gray-200 hover:bg-gray-100';
             managementRow.innerHTML = `
-                <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Quản lý</td>
+                <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Quản lý và Kỹ sư</td>
                 <td class="py-3 px-6 text-right font-semibold">${formatNumber(totalManagementCount)}</td>
                 <td class="py-3 px-6 text-right font-semibold text-green-600">${formatCurrency(totalManagementPayroll)}</td>
             `;
@@ -612,8 +838,6 @@
             combinedTableBody.appendChild(totalRow);
         }
 
-
-        // --- NEW LOGIC FOR MANAGEMENT PAYROLL DISTRIBUTION ---
         function renderManagementPayrollTable() {
             const managementTableBody = document.getElementById('management-payroll-table');
             managementTableBody.innerHTML = '';
@@ -621,19 +845,19 @@
                 const row = document.createElement('tr');
                 row.className = 'border-b border-gray-200 hover:bg-gray-100';
                 row.innerHTML = `
-                    <td class="py-3 px-6 whitespace-nowrap">${item.role}</td>
-                    <td class="py-3 px-6 text-right text-nowrap">93%</td>
-                    <td class="py-3 px-6 text-right text-nowrap">
+                    <td class="py-3 px-6 text-nowrap">${item.role}</td>
+                    <td class="py-3 px-6 text-nowrap text-right">93%</td>
+                    <td class="py-3 px-6 text-nowrap text-right">
                         <input type="number" class="payroll-input input-2p text-right" value="${item.initialHeSoKhoan}" data-type="khoan" data-index="${index}" min="0" step="0.01">
                     </td>
-                    <td class="py-3 px-6 text-right text-nowrap">
+                    <td class="py-3 px-6 text-nowrap text-right">
                         <input type="number" class="payroll-input input-3p text-right" value="${item.initialHeSo3P}" data-type="3p" data-index="${index}" min="0" step="0.01">
                     </td>
-                    <td class="py-3 px-6 text-right text-nowrap font-medium" data-l-heso-khoan></td>
-                    <td class="py-3 px-6 text-right text-nowrap font-medium" data-l-tran-3p></td>
-                    <td class="py-3 px-6 text-right text-nowrap font-bold text-green-600" data-l-khoan></td>
-                    <td class="py-3 px-6 text-right text-nowrap">${formatNumber(item.count)}</td>
-                    <td class="py-3 px-6 text-right text-nowrap font-bold text-blue-600" data-l-avg></td>
+                    <td class="py-3 px-6 text-nowrap text-right font-medium" data-l-heso-khoan></td>
+                    <td class="py-3 px-6 text-nowrap text-right font-medium" data-l-tran-3p></td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-green-600" data-l-khoan></td>
+                    <td class="py-3 px-6 text-nowrap text-right">${formatNumber(item.count)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-l-avg></td>
                 `;
                 managementTableBody.appendChild(row);
             });
@@ -644,7 +868,6 @@
             const managementTableBody = document.getElementById('management-payroll-table');
             const totalManagementFund = data.managementPayroll.reduce((sum, item) => sum + item.fixedPayroll, 0);
 
-            // Get all input values and calculate totals
             let totalHeSoKhoan = 0;
             let totalHeSo3P = 0;
             const inputs = managementTableBody.querySelectorAll('.payroll-input');
@@ -664,7 +887,6 @@
                 }
             });
 
-            // Calculate and update each row
             departmentData.forEach((item, index) => {
                 let lHeSoKhoan = 0;
                 if (totalHeSoKhoan > 0) {
@@ -687,11 +909,39 @@
             });
         }
 
-        // Initialize the app on page load
-        window.onload = function() {
-            calculateAndRender();
-        };
+        // --- NAVIGATION LOGIC ---
+        function setActiveStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            const progressWidth = calculateProgressWidth(step);
+            document.getElementById('step-progress').style.width = `${progressWidth}%`;
+
+            if (step === 1) {
+                renderProductionInputView();
+            } else if (step === 2) {
+                renderQualityInputView();
+            } else {
+                renderDashboardView();
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listeners for step navigation
+            document.getElementById('step-1').addEventListener('click', () => setActiveStep(1));
+            document.getElementById('step-2').addEventListener('click', () => setActiveStep(2));
+            document.getElementById('step-3').addEventListener('click', () => setActiveStep(3));
+            document.getElementById('step-4').addEventListener('click', () => setActiveStep(4));
+            document.getElementById('step-5').addEventListener('click', () => setActiveStep(5));
+            
+            // Add event listener for the "Save & Return" button
+            document.getElementById('save-and-return-btn').addEventListener('click', () => setActiveStep(2));
+            document.getElementById('save-and-return-quality-btn').addEventListener('click', () => setActiveStep(3));
+
+            // Initialize the app by showing the production input view
+            setActiveStep(1);
+        });
     </script>
 </body>
 </html>
-
