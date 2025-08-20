@@ -84,14 +84,49 @@
             margin-top: 32px;
             padding-top: 32px;
         }
+        .payroll-input {
+            width: 80px;
+            text-align: right;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+        }
+        .text-nowrap {
+            white-space: nowrap;
+        }
+        .input-2p {
+            width: 60px;
+        }
+        .input-3p {
+            width: 60px;
+        }
     </style>
 </head>
 <body class="p-8">
 
     <!-- Header -->
-    <header class="text-center mb-8">
+    <header class="text-center mb-8 relative">
         <h1 class="text-4xl font-bold text-gray-800">Hệ thống tính lương khoán</h1>
         <p class="text-gray-500 mt-2">Quản lý và phân bổ quỹ lương theo sản lượng</p>
+
+        <!-- Dropdown để chọn tháng -->
+        <div class="absolute top-0 right-0 mt-2 mr-2">
+            <label for="month-select" class="sr-only">Chọn tháng</label>
+            <select id="month-select" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+                <option value="3">Tháng 3</option>
+                <option value="4">Tháng 4</option>
+                <option value="5">Tháng 5</option>
+                <option value="6">Tháng 6</option>
+                <option value="7" selected>Tháng 7</option>
+                <option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+            </select>
+        </div>
     </header>
 
     <!-- Progress Steps -->
@@ -225,24 +260,24 @@
             <!-- RE Summary -->
             <div class="bg-blue-50 p-6 rounded-lg">
                 <div class="flex flex-col items-center">
-                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Rung Ép</span>
+                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Rung Ép Ban Đầu</span>
                     <span id="re-initial-fund" class="block text-2xl font-bold text-blue-700 mt-2"></span>
-                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ sau điều chỉnh</span>
+                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ Lương Rung Ép Còn Lại</span>
                     <span id="re-final-fund" class="block text-3xl font-bold text-blue-700 mt-2"></span>
                 </div>
             </div>
             <!-- Mài Summary -->
             <div class="bg-green-50 p-6 rounded-lg">
                 <div class="flex flex-col items-center">
-                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Mài</span>
+                    <span class="text-lg font-semibold text-gray-500">Quỹ Lương Mài Ban Đầu</span>
                     <span id="m-initial-fund" class="block text-2xl font-bold text-green-700 mt-2"></span>
-                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ sau điều chỉnh</span>
+                    <span class="text-lg font-semibold text-gray-500 mt-4">Quỹ Lương Mài Còn Lại</span>
                     <span id="m-final-fund" class="block text-3xl font-bold text-green-700 mt-2"></span>
                 </div>
             </div>
         </div>
         <div class="mt-8 text-center bg-gray-50 p-6 rounded-lg">
-            <span class="text-lg font-semibold text-gray-500">Tổng Quỹ Lương Sau Điều Chỉnh</span>
+            <span class="text-lg font-semibold text-gray-500">Tổng Quỹ Lương Còn Lại</span>
             <span id="final-fund" class="block text-3xl font-bold text-gray-700 mt-2"></span>
         </div>
     </div>
@@ -275,8 +310,11 @@
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                             <th class="py-3 px-6">Bộ phận</th>
-                            <th class="py-3 px-6 text-right">Số người</th>
-                            <th class="py-3 px-6 text-right">Quỹ lương (VNĐ)</th>
+                            <th class="py-3 px-6">Nguồn Quỹ</th>
+                            <th class="py-3 px-6 text-right text-nowrap">Tỉ lệ (%)</th>
+                            <th class="py-3 px-6 text-right text-nowrap">Quỹ lương (VNĐ)</th>
+                            <th class="py-3 px-6 text-right text-nowrap">Số nhân sự</th>
+                            <th class="py-3 px-6 text-right text-nowrap">Lương TB (VNĐ)</th>
                         </tr>
                     </thead>
                     <tbody id="worker-payroll-table" class="text-gray-600 text-sm font-light">
@@ -291,9 +329,15 @@
                 <table class="w-full text-left table-auto">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6">Bộ phận</th>
-                            <th class="py-3 px-6 text-right">Số người</th>
-                            <th class="py-3 px-6 text-right">Quỹ lương (VNĐ)</th>
+                            <th class="py-3 px-6 text-nowrap">Bộ phận</th>
+                            <th class="py-3 px-6 text-nowrap text-right">BSC (%)</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Hệ số khoán</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Hệ số 3P</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Lương hệ số khoán</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Lương trần 3P</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Lương khoán</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Số nhân sự</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Lương TB</th>
                         </tr>
                     </thead>
                     <tbody id="management-payroll-table" class="text-gray-600 text-sm font-light">
@@ -358,168 +402,296 @@
                 { item: 'HC dừng theo KH', value: 212400000 },
             ],
             
-            workerPayroll: [
-                { role: 'CN thiết bị', count: 2.30, payroll: 38446530 },
-                { role: 'CBSX', count: 0.92, payroll: 24170767 },
-                { role: 'Sửa đá', count: 2.22, payroll: 42586590 },
-                { role: 'Trường ca hành chính', count: 4.85, payroll: 128910760 },
-                { role: 'CN Rung ép', count: 48.53, payroll: 924244109 },
-                { role: 'CN Mài hoàn thiện', count: 18.79, payroll: 265586812 },
-            ],
+            // Updated with initial values for calculation
             managementPayroll: [
-                { role: 'Trưởng đơn vị', count: 1.00, payroll: 60469899 },
-                { role: 'Phó trưởng đơn vị', count: 1.00, payroll: 46373037 },
-                { role: 'Khối kỹ sư Mài', count: 1.00, payroll: 20530857 },
-                { role: 'Khối kỹ sư Thiết bị', count: 1.00, payroll: 22445587 },
-                { role: 'Khối kỹ sư Rung ép', count: 5.00, payroll: 122567996 },
+                { role: 'Trưởng đơn vị', count: 1.00, initialHeSoKhoan: 1.5, initialHeSo3P: 1.8, fixedPayroll: 60469899 },
+                { role: 'Phó trưởng đơn vị', count: 1.00, initialHeSoKhoan: 1.4, initialHeSo3P: 1.7, fixedPayroll: 46373037 },
+                { role: 'Khối kỹ sư Mài', count: 1.00, initialHeSoKhoan: 1.2, initialHeSo3P: 1.5, fixedPayroll: 20530857 },
+                { role: 'Khối kỹ sư Thiết bị', count: 1.00, initialHeSoKhoan: 1.3, initialHeSo3P: 1.6, fixedPayroll: 22445587 },
+                { role: 'Khối kỹ sư Rung ép', count: 5.00, initialHeSoKhoan: 1.1, initialHeSo3P: 1.4, fixedPayroll: 122567996 },
+            ],
+            companyFundAdjustment: 40000000,
+            
+            // New hard-coded data for worker departments based on user request
+            workerDepartments: [
+                { role: 'CN thiết bị', fundSource: 'RE', initialRatio: 0.05, headcount: 2.30 },
+                { role: 'CBSX', fundSource: 'RE', initialRatio: 0.02, headcount: 0.92 },
+                { role: 'Sửa đá', fundSource: 'RE', initialRatio: 0.03, headcount: 2.22 },
+                { role: 'Trường ca hành chính', fundSource: 'RE', initialRatio: 0.1, headcount: 4.85 },
+                { role: 'CN Rung ép', fundSource: 'RE', initialRatio: 0.6, headcount: 48.53 },
+                { role: 'CN Mài hoàn thiện', fundSource: 'Mài', initialRatio: 1.0, headcount: 18.79 },
             ]
         };
         
-        // Calculate adjustments and final funds
-        const reAdjustments = data.qualityFunds.find(q => q.item.includes('RE'))?.value + 
-                              data.costFunds.find(c => c.item.includes('Nguyên vật liệu RE'))?.value +
-                              data.costFunds.find(c => c.item.includes('Điện RE'))?.value +
-                              data.costFunds.find(c => c.item.includes('RE nhận hỗ trợ'))?.value +
-                              data.costFunds.find(c => c.item.includes('HC dừng theo KH'))?.value +
-                              data.qualityFunds.find(q => q.item.includes('vệ sinh 5S – RE'))?.value || 0;
-        
-        const mAdjustments = data.qualityFunds.find(q => q.item.includes('Mài'))?.value + 
-                             data.qualityFunds.find(q => q.item.includes('m2A1'))?.value + 
-                             data.costFunds.find(c => c.item.includes('Điện Mài'))?.value +
-                             data.costFunds.find(c => c.item.includes('Tiền chạy mẫu'))?.value +
-                             data.qualityFunds.find(q => q.item.includes('vệ sinh 5S – Mài'))?.value || 0;
-        
-        const reFinalFund = data.reTotalFund + reAdjustments;
-        const mFinalFund = data.mTotalFund + mAdjustments;
-        const totalFinalFund = reFinalFund + mFinalFund;
+        // --- GLOBAL VARIABLES FOR FUND AMOUNTS ---
+        let reRemainingFund = 0;
+        let mRemainingFund = 0;
 
+        // --- CALCULATION LOGIC ---
+        function calculateAndRender() {
+            // Step 1: Calculate the "Initial Fund" by adding production fund and other adjustments.
+            const reAdjustments = data.qualityFunds.filter(q => q.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) + 
+                                  data.costFunds.filter(c => c.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) +
+                                  data.qualityFunds.filter(q => q.item.includes('vệ sinh 5S – RE')).reduce((sum, item) => sum + item.value, 0) +
+                                  data.costFunds.filter(c => c.item.includes('HC dừng theo KH')).reduce((sum, item) => sum + item.value, 0);
 
-        // Populate RE Fund Table
-        document.getElementById('re-fund-display').textContent = formatCurrency(data.reTotalFund);
-        const reTableBody = document.getElementById('re-fund-table');
-        reTableBody.innerHTML = '';
-        data.reFundData.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="py-2 px-4">${item.item}</td>
-                <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
-                <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+            const mAdjustments = data.qualityFunds.filter(q => q.item.includes('Mài')).reduce((sum, item) => sum + item.value, 0) + 
+                                 data.qualityFunds.filter(q => q.item.includes('m2A1')).reduce((sum, item) => sum + item.value, 0) + 
+                                 data.costFunds.filter(c => c.item.includes('Mài')).reduce((sum, item) => sum + item.value, 0) +
+                                 data.costFunds.filter(c => c.item.includes('Tiền chạy mẫu')).reduce((sum, item) => sum + item.value, 0) +
+                                 data.qualityFunds.filter(q => q.item.includes('vệ sinh 5S – Mài')).reduce((sum, item) => sum + item.value, 0);
+
+            const reInitialAdjustedFund = data.reTotalFund + reAdjustments;
+            const mInitialAdjustedFund = data.mTotalFund + mAdjustments;
+
+            // Step 2: Calculate the "Remaining Fund" by further adjusting with the Company Fund.
+            const totalInitialAdjustedFund = reInitialAdjustedFund + mInitialAdjustedFund;
+            const reCompanyFundPortion = (reInitialAdjustedFund / totalInitialAdjustedFund) * data.companyFundAdjustment;
+            const mCompanyFundPortion = (mInitialAdjustedFund / totalInitialAdjustedFund) * data.companyFundAdjustment;
+
+            reRemainingFund = reInitialAdjustedFund + reCompanyFundPortion;
+            mRemainingFund = mInitialAdjustedFund + mCompanyFundPortion;
+            const totalRemainingFund = reRemainingFund + mRemainingFund;
+
+            // --- POPULATE UI ELEMENTS (UNCHANGED SECTIONS) ---
+            document.getElementById('re-fund-display').textContent = formatCurrency(data.reTotalFund);
+            const reTableBody = document.getElementById('re-fund-table');
+            reTableBody.innerHTML = '';
+            data.reFundData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-2 px-4">${item.item}</td>
+                    <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
+                    <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+                `;
+                reTableBody.appendChild(row);
+            });
+
+            document.getElementById('m-fund-display').textContent = formatCurrency(data.mTotalFund);
+            const mTableBody = document.getElementById('m-fund-table');
+            mTableBody.innerHTML = '';
+            data.mFundData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-2 px-4">${item.item}</td>
+                    <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
+                    <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+                `;
+                mTableBody.appendChild(row);
+            });
+
+            const qualityTableBody = document.getElementById('quality-fund-table');
+            qualityTableBody.innerHTML = '';
+            data.qualityFunds.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 whitespace-nowrap">${item.item}</td>
+                    <td class="py-3 px-6 text-right">${formatCurrency(item.value)}</td>
+                `;
+                qualityTableBody.appendChild(row);
+            });
+
+            const costTableBody = document.getElementById('cost-fund-table');
+            costTableBody.innerHTML = '';
+            data.costFunds.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 whitespace-nowrap">${item.item}</td>
+                    <td class="py-3 px-6 text-right">${formatCurrency(item.value)}</td>
+                `;
+                costTableBody.appendChild(row);
+            });
+            
+            document.getElementById('re-initial-fund').textContent = formatCurrency(reInitialAdjustedFund);
+            document.getElementById('re-final-fund').textContent = formatCurrency(reRemainingFund);
+            document.getElementById('m-initial-fund').textContent = formatCurrency(mInitialAdjustedFund);
+            document.getElementById('m-final-fund').textContent = formatCurrency(mRemainingFund);
+            document.getElementById('final-fund').textContent = formatCurrency(totalRemainingFund);
+
+            renderWorkerPayrollTable();
+            updateWorkerPayroll();
+            renderManagementPayrollTable();
+            updateManagementPayroll();
+        }
+
+        // --- NEW LOGIC FOR WORKER PAYROLL DISTRIBUTION ---
+        function renderWorkerPayrollTable() {
+            const workerTableBody = document.getElementById('worker-payroll-table');
+            workerTableBody.innerHTML = ''; 
+            data.workerDepartments.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 whitespace-nowrap">${item.role}</td>
+                    <td class="py-3 px-6 whitespace-nowrap">${item.fundSource}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input text-right" value="${(item.initialRatio * 100).toFixed(2)}"
+                            data-index="${index}" min="0" max="100" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-right font-medium text-blue-600" data-payroll-fund></td>
+                    <td class="py-3 px-6 text-right font-medium text-gray-700">${formatNumber(item.headcount)}</td>
+                    <td class="py-3 px-6 text-right font-medium text-green-600" data-avg-salary></td>
+                `;
+                workerTableBody.appendChild(row);
+            });
+
+            // Add event listener to the table body to handle changes on any input
+            workerTableBody.addEventListener('input', updateWorkerPayroll);
+        }
+
+        function updateWorkerPayroll() {
+            let totalWorkerPayroll = 0;
+            let totalWorkerCount = 0;
+            const workerTableBody = document.getElementById('worker-payroll-table');
+            
+            const inputs = workerTableBody.querySelectorAll('.payroll-input');
+            inputs.forEach(input => {
+                const index = input.getAttribute('data-index');
+                const department = data.workerDepartments[index];
+                const ratio = parseFloat(input.value) / 100;
+                
+                let payrollFund = 0;
+                if (department.fundSource === 'RE') {
+                    payrollFund = ratio * reRemainingFund;
+                } else if (department.fundSource === 'Mài') {
+                    payrollFund = ratio * mRemainingFund;
+                }
+                
+                const avgSalary = department.headcount > 0 ? payrollFund / department.headcount : 0;
+                
+                const payrollCell = input.closest('tr').querySelector('[data-payroll-fund]');
+                const avgSalaryCell = input.closest('tr').querySelector('[data-avg-salary]');
+                
+                payrollCell.textContent = formatCurrency(payrollFund);
+                avgSalaryCell.textContent = formatCurrency(avgSalary);
+
+                totalWorkerPayroll += payrollFund;
+                totalWorkerCount += department.headcount;
+            });
+            
+            // Update combined summary table
+            updateCombinedSummary(totalWorkerPayroll, totalWorkerCount);
+        }
+
+        function updateCombinedSummary(totalWorkerPayroll, totalWorkerCount) {
+            const combinedTableBody = document.getElementById('combined-payroll-table');
+            combinedTableBody.innerHTML = '';
+            
+            const totalManagementCount = data.managementPayroll.reduce((sum, item) => sum + item.count, 0);
+            const totalManagementPayroll = data.managementPayroll.reduce((sum, item) => sum + item.fixedPayroll, 0);
+
+            const workerRow = document.createElement('tr');
+            workerRow.className = 'border-b border-gray-200 hover:bg-gray-100';
+            workerRow.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Công nhân</td>
+                <td class="py-3 px-6 text-right font-semibold">${formatNumber(totalWorkerCount)}</td>
+                <td class="py-3 px-6 text-right font-semibold text-blue-600">${formatCurrency(totalWorkerPayroll)}</td>
             `;
-            reTableBody.appendChild(row);
-        });
-
-        // Populate M Fund Table
-        document.getElementById('m-fund-display').textContent = formatCurrency(data.mTotalFund);
-        const mTableBody = document.getElementById('m-fund-table');
-        mTableBody.innerHTML = '';
-        data.mFundData.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="py-2 px-4">${item.item}</td>
-                <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
-                <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+            combinedTableBody.appendChild(workerRow);
+            
+            const managementRow = document.createElement('tr');
+            managementRow.className = 'border-b border-gray-200 hover:bg-gray-100';
+            managementRow.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Quản lý</td>
+                <td class="py-3 px-6 text-right font-semibold">${formatNumber(totalManagementCount)}</td>
+                <td class="py-3 px-6 text-right font-semibold text-green-600">${formatCurrency(totalManagementPayroll)}</td>
             `;
-            mTableBody.appendChild(row);
-        });
-
-        // Populate Quality Funds Table
-        const qualityTableBody = document.getElementById('quality-fund-table');
-        qualityTableBody.innerHTML = '';
-        data.qualityFunds.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'border-b border-gray-200 hover:bg-gray-100';
-            row.innerHTML = `
-                <td class="py-3 px-6 whitespace-nowrap">${item.item}</td>
-                <td class="py-3 px-6 text-right">${formatCurrency(item.value)}</td>
+            combinedTableBody.appendChild(managementRow);
+            
+            const totalOverallCount = totalWorkerCount + totalManagementCount;
+            const totalOverallPayroll = totalWorkerPayroll + totalManagementPayroll;
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'border-b border-gray-200 hover:bg-gray-100 bg-gray-100';
+            totalRow.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap font-bold text-gray-700">Tổng cộng</td>
+                <td class="py-3 px-6 text-right font-bold text-gray-700">${formatNumber(totalOverallCount)}</td>
+                <td class="py-3 px-6 text-right font-bold text-gray-700">${formatCurrency(totalOverallPayroll)}</td>
             `;
-            qualityTableBody.appendChild(row);
-        });
-
-        // Populate Cost Funds Table
-        const costTableBody = document.getElementById('cost-fund-table');
-        costTableBody.innerHTML = '';
-        data.costFunds.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'border-b border-gray-200 hover:bg-gray-100';
-            row.innerHTML = `
-                <td class="py-3 px-6 whitespace-nowrap">${item.item}</td>
-                <td class="py-3 px-6 text-right">${formatCurrency(item.value)}</td>
-            `;
-            costTableBody.appendChild(row);
-        });
-        
-        // Populate Tổng hợp Quỹ Lương
-        document.getElementById('re-initial-fund').textContent = formatCurrency(data.reTotalFund);
-        document.getElementById('re-final-fund').textContent = formatCurrency(reFinalFund);
-        document.getElementById('m-initial-fund').textContent = formatCurrency(data.mTotalFund);
-        document.getElementById('m-final-fund').textContent = formatCurrency(mFinalFund);
-        document.getElementById('final-fund').textContent = formatCurrency(totalFinalFund);
-
-        // Populate Combined Payroll Table
-        const combinedTableBody = document.getElementById('combined-payroll-table');
-        combinedTableBody.innerHTML = '';
-        
-        const totalWorkerCount = data.workerPayroll.reduce((sum, item) => sum + item.count, 0);
-        const totalWorkerPayroll = data.workerPayroll.reduce((sum, item) => sum + item.payroll, 0);
-        const workerRow = document.createElement('tr');
-        workerRow.className = 'border-b border-gray-200 hover:bg-gray-100';
-        workerRow.innerHTML = `
-            <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Công nhân</td>
-            <td class="py-3 px-6 text-right font-semibold">${formatNumber(totalWorkerCount)}</td>
-            <td class="py-3 px-6 text-right font-semibold text-blue-600">${formatCurrency(totalWorkerPayroll)}</td>
-        `;
-        combinedTableBody.appendChild(workerRow);
-        
-        const totalManagementCount = data.managementPayroll.reduce((sum, item) => sum + item.count, 0);
-        const totalManagementPayroll = data.managementPayroll.reduce((sum, item) => sum + item.payroll, 0);
-        const managementRow = document.createElement('tr');
-        managementRow.className = 'border-b border-gray-200 hover:bg-gray-100';
-        managementRow.innerHTML = `
-            <td class="py-3 px-6 whitespace-nowrap">Tổng Khối Quản lý</td>
-            <td class="py-3 px-6 text-right font-semibold">${formatNumber(totalManagementCount)}</td>
-            <td class="py-3 px-6 text-right font-semibold text-green-600">${formatCurrency(totalManagementPayroll)}</td>
-        `;
-        combinedTableBody.appendChild(managementRow);
-        
-        const totalOverallCount = totalWorkerCount + totalManagementCount;
-        const totalOverallPayroll = totalWorkerPayroll + totalManagementPayroll;
-        const totalRow = document.createElement('tr');
-        totalRow.className = 'border-b border-gray-200 hover:bg-gray-100 bg-gray-100';
-        totalRow.innerHTML = `
-            <td class="py-3 px-6 whitespace-nowrap font-bold text-gray-700">Tổng cộng</td>
-            <td class="py-3 px-6 text-right font-bold text-gray-700">${formatNumber(totalOverallCount)}</td>
-            <td class="py-3 px-6 text-right font-bold text-gray-700">${formatCurrency(totalOverallPayroll)}</td>
-        `;
-        combinedTableBody.appendChild(totalRow);
+            combinedTableBody.appendChild(totalRow);
+        }
 
 
-        // Populate Worker Payroll Table
-        const workerTableBody = document.getElementById('worker-payroll-table');
-        workerTableBody.innerHTML = ''; 
-        data.workerPayroll.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'border-b border-gray-200 hover:bg-gray-100';
-            row.innerHTML = `
-                <td class="py-3 px-6 whitespace-nowrap">${item.role}</td>
-                <td class="py-3 px-6 text-right">${formatNumber(item.count)}</td>
-                <td class="py-3 px-6 text-right">${formatCurrency(item.payroll)}</td>
-            `;
-            workerTableBody.appendChild(row);
-        });
+        // --- NEW LOGIC FOR MANAGEMENT PAYROLL DISTRIBUTION ---
+        function renderManagementPayrollTable() {
+            const managementTableBody = document.getElementById('management-payroll-table');
+            managementTableBody.innerHTML = '';
+            data.managementPayroll.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 whitespace-nowrap">${item.role}</td>
+                    <td class="py-3 px-6 text-right text-nowrap">93%</td>
+                    <td class="py-3 px-6 text-right text-nowrap">
+                        <input type="number" class="payroll-input input-2p text-right" value="${item.initialHeSoKhoan}" data-type="khoan" data-index="${index}" min="0" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-right text-nowrap">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.initialHeSo3P}" data-type="3p" data-index="${index}" min="0" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-right text-nowrap font-medium" data-l-heso-khoan></td>
+                    <td class="py-3 px-6 text-right text-nowrap font-medium" data-l-tran-3p></td>
+                    <td class="py-3 px-6 text-right text-nowrap font-bold text-green-600" data-l-khoan></td>
+                    <td class="py-3 px-6 text-right text-nowrap">${formatNumber(item.count)}</td>
+                    <td class="py-3 px-6 text-right text-nowrap font-bold text-blue-600" data-l-avg></td>
+                `;
+                managementTableBody.appendChild(row);
+            });
+            managementTableBody.addEventListener('input', updateManagementPayroll);
+        }
 
-        // Populate Management Payroll Table
-        const managementTableBody = document.getElementById('management-payroll-table');
-        managementTableBody.innerHTML = '';
-        data.managementPayroll.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'border-b border-gray-200 hover:bg-gray-100';
-            row.innerHTML = `
-                <td class="py-3 px-6 whitespace-nowrap">${item.role}</td>
-                <td class="py-3 px-6 text-right">${formatNumber(item.count)}</td>
-                <td class="py-3 px-6 text-right">${formatCurrency(item.payroll)}</td>
-            `;
-            managementTableBody.appendChild(row);
-        });
+        function updateManagementPayroll() {
+            const managementTableBody = document.getElementById('management-payroll-table');
+            const totalManagementFund = data.managementPayroll.reduce((sum, item) => sum + item.fixedPayroll, 0);
+
+            // Get all input values and calculate totals
+            let totalHeSoKhoan = 0;
+            let totalHeSo3P = 0;
+            const inputs = managementTableBody.querySelectorAll('.payroll-input');
+            const departmentData = data.managementPayroll.map(item => ({ ...item }));
+
+            inputs.forEach(input => {
+                const index = input.getAttribute('data-index');
+                const type = input.getAttribute('data-type');
+                const value = parseFloat(input.value) || 0;
+                
+                if (type === 'khoan') {
+                    departmentData[index].currentHeSoKhoan = value;
+                    totalHeSoKhoan += value;
+                } else if (type === '3p') {
+                    departmentData[index].currentHeSo3P = value;
+                    totalHeSo3P += value;
+                }
+            });
+
+            // Calculate and update each row
+            departmentData.forEach((item, index) => {
+                let lHeSoKhoan = 0;
+                if (totalHeSoKhoan > 0) {
+                    lHeSoKhoan = totalManagementFund * (item.currentHeSoKhoan / totalHeSoKhoan);
+                }
+
+                let lTran3P = 0;
+                if (totalHeSo3P > 0) {
+                    lTran3P = totalManagementFund * (item.currentHeSo3P / totalHeSo3P);
+                }
+                
+                const lKhoan = (lHeSoKhoan + lTran3P) / 2;
+                const lAvg = item.count > 0 ? lKhoan / item.count : 0;
+                
+                const row = managementTableBody.children[index];
+                row.querySelector('[data-l-heso-khoan]').textContent = formatCurrency(lHeSoKhoan);
+                row.querySelector('[data-l-tran-3p]').textContent = formatCurrency(lTran3P);
+                row.querySelector('[data-l-khoan]').textContent = formatCurrency(lKhoan);
+                row.querySelector('[data-l-avg]').textContent = formatCurrency(lAvg);
+            });
+        }
+
+        // Initialize the app on page load
+        window.onload = function() {
+            calculateAndRender();
+        };
     </script>
 </body>
 </html>
+
