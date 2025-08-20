@@ -425,6 +425,102 @@
             </div>
         </div>
     </div>
+    
+    <!-- Cost Input View (New view, initially hidden) -->
+    <div id="cost-input-view" class="hidden">
+        <div class="card mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="section-header">Nhập Chi Phí</h2>
+                <button id="save-and-return-cost-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                    Lưu & Trở về
+                </button>
+            </div>
+            
+            <!-- Monthly Cost Table -->
+            <div class="table-container mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Chi Phí Hàng Tháng</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-nowrap">Tên sản phẩm</th>
+                            <th class="py-3 px-6 text-nowrap text-right">M2 RE</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Nguyên vật liệu</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Điện RE</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Gas</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Aceton</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Nilon</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Điện Mài</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Tổng định mức NVL</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Tổng định mức Điện RE</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Tổng định mức Gas</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Tổng định mức Aceton</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Tổng định mức Nilon</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Tổng định mức Điện Mài</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthly-cost-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 6-Month Cost Table -->
+            <div class="table-container">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Chi Phí 6 Tháng</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-nowrap">Tên vật tư</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Định mức</th>
+                            <th class="py-3 px-6 text-nowrap text-right">SL tháng</th>
+                            <th class="py-3 px-6 text-nowrap text-right">SL 6 tháng</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Thực dùng 6 tháng</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Định mức sử dụng 6 tháng</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Chênh lệch 6 tháng</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Đơn giá</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Thành tiền</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Chi phí tháng</th>
+                        </tr>
+                    </thead>
+                    <tbody id="six-month-cost-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Arising Input View (New view, initially hidden) -->
+    <div id="arising-input-view" class="hidden">
+        <div class="card mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="section-header">Nhập Phát Sinh</h2>
+                <button id="save-and-return-arising-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                    Lưu & Trở về
+                </button>
+            </div>
+            
+            <!-- Arising Cost Table -->
+            <div class="table-container mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Bảng tiền và công việc phát sinh khác</h3>
+                <table class="w-full text-left table-auto">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-nowrap">Tiền hoặc công việc khác sinh</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Số lượng</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Đơn vị</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Đơn giá</th>
+                            <th class="py-3 px-6 text-nowrap text-right">Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="arising-cost-table" class="text-gray-600 text-sm font-light">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         // Data based on the user's provided tables
@@ -462,9 +558,18 @@
                 { item: 'Nguyên vật liệu RE', value: 75511033 },
                 { item: 'Điện RE', value: -29944462 },
                 { item: 'Điện Mài', value: 12763461 },
-                { item: 'Tiền chạy mẫu', value: 45000000 },
-                { item: 'RE nhận hỗ trợ', value: -3600000 },
-                { item: 'HC dừng theo KH', value: 212400000 },
+            ],
+
+            // Data for the new arising costs table
+            arisingData: [
+                { item: 'Thưởng phạt số SP chạy trong tháng', quantity: 0, unit: 'Lần', unitPrice: 200000 },
+                { item: 'Tiền chạy mẫu', quantity: 0, unit: 'Lần', unitPrice: 45000000 },
+                { item: 'PX đi hỗ trợ', quantity: 0, unit: 'Ngày', unitPrice: 500000 },
+                { item: 'HC dừng theo KH', quantity: 0, unit: 'Ngày', unitPrice: 212400000 },
+                { item: 'RE nhận hỗ trợ từ SSC+NM2', quantity: 0, unit: 'Lần', unitPrice: -3600000 },
+                { item: 'Hỗ trợ PKTH', quantity: 0, unit: 'Lần', unitPrice: 350000 },
+                { item: 'Hỗ trợ Dược', quantity: 0, unit: 'Lần', unitPrice: 400000 },
+                { item: 'Bộ phận Mài nhận hỗ trợ', quantity: 0, unit: 'Lần', unitPrice: 600000 },
             ],
             
             managementPayroll: [
@@ -508,7 +613,28 @@
                 { team: 'RE2', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
                 { team: 'RE3', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
                 { team: 'RE4', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-            ]
+            ],
+            
+            // Updated hard-coded data for monthly cost input table with more rows and a new structure for inputs
+            monthlyCostData: [
+                { product: 'A', m2RE: 130.68, nvLieu: 120, dienRE: 1.5, gas: 0.1, aceton: 0.05, nilon: 0.03, dienMai: 2.5 },
+                { product: 'B', m2RE: 201.465, nvLieu: 115, dienRE: 1.6, gas: 0.12, aceton: 0.06, nilon: 0.04, dienMai: 2.8 },
+                { product: 'C', m2RE: 451.935, nvLieu: 125, dienRE: 1.4, gas: 0.09, aceton: 0.04, nilon: 0.02, dienMai: 2.2 },
+                { product: 'D', m2RE: 4257.99, nvLieu: 122, dienRE: 1.8, gas: 0.11, aceton: 0.05, nilon: 0.03, dienMai: 2.7 },
+                { product: 'E', m2RE: 1246.91, nvLieu: 118, dienRE: 1.7, gas: 0.1, aceton: 0.05, nilon: 0.03, dienMai: 2.6 },
+                { product: 'F', m2RE: 909.32, nvLieu: 110, dienRE: 1.3, gas: 0.08, aceton: 0.03, nilon: 0.02, dienMai: 2.1 },
+                { product: 'G', m2RE: 1442.93, nvLieu: 128, dienRE: 1.9, gas: 0.13, aceton: 0.07, nilon: 0.05, dienMai: 2.9 },
+            ],
+
+            // New hard-coded data for 6-month cost table
+            sixMonthCostData: [
+                { item: 'Nguyên vật liệu RE', monthlyProd: 0, sixMonthProd: 0, actualUsage: 0, unitPrice: 85000 },
+                { item: 'Điện RE', monthlyProd: 0, sixMonthProd: 0, actualUsage: 0, unitPrice: 25000 },
+                { item: 'Gas', monthlyProd: 0, sixMonthProd: 0, actualUsage: 0, unitPrice: 150000 },
+                { item: 'Aceton', monthlyProd: 0, sixMonthProd: 0, actualUsage: 0, unitPrice: 30000 },
+                { item: 'Nilon', monthlyProd: 0, sixMonthProd: 0, actualUsage: 0, unitPrice: 50000 },
+                { item: 'Điện Mài', monthlyProd: 0, sixMonthProd: 0, actualUsage: 0, unitPrice: 22000 },
+            ],
         };
 
         // --- GLOBAL VARIABLES ---
@@ -533,6 +659,8 @@
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('production-input-view').classList.add('hidden');
             document.getElementById('quality-input-view').classList.add('hidden');
+            document.getElementById('cost-input-view').classList.add('hidden');
+            document.getElementById('arising-input-view').classList.add('hidden');
         }
 
         function renderDashboardView() {
@@ -656,26 +784,196 @@
                 }
             });
         }
+        
+        // New function to render the cost input view
+        function renderCostInputView() {
+            hideAllViews();
+            document.getElementById('cost-input-view').classList.remove('hidden');
+
+            // Render Monthly Cost Table
+            const monthlyTableBody = document.getElementById('monthly-cost-table');
+            monthlyTableBody.innerHTML = '';
+            data.monthlyCostData.forEach((item, index) => {
+                const totalNvl = item.m2RE * item.nvLieu;
+                const totalDienRe = item.m2RE * item.dienRE;
+                const totalGas = item.m2RE * item.gas;
+                const totalAceton = item.m2RE * item.aceton;
+                const totalNilon = item.m2RE * item.nilon;
+                const totalDienMai = item.m2RE * item.dienMai;
+
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-nowrap">${item.product}</td>
+                    <td class="py-3 px-6 text-nowrap text-right">${formatNumber(item.m2RE)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.nvLieu}" data-index="${index}" data-type="nvLieu" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.dienRE}" data-index="${index}" data-type="dienRE" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.gas}" data-index="${index}" data-type="gas" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.aceton}" data-index="${index}" data-type="aceton" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.nilon}" data-index="${index}" data-type="nilon" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.dienMai}" data-index="${index}" data-type="dienMai" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-total-nvl>${formatNumber(totalNvl)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-total-dienre>${formatNumber(totalDienRe)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-total-gas>${formatNumber(totalGas)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-total-aceton>${formatNumber(totalAceton)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-total-nilon>${formatNumber(totalNilon)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-total-dienmai>${formatNumber(totalDienMai)}</td>
+                `;
+                monthlyTableBody.appendChild(row);
+            });
+
+            // Add event listener to handle monthly cost input changes
+            monthlyTableBody.addEventListener('input', (event) => {
+                const input = event.target;
+                if (input.tagName === 'INPUT') {
+                    const index = input.getAttribute('data-index');
+                    const type = input.getAttribute('data-type');
+                    const newValue = parseFloat(input.value) || 0;
+                    data.monthlyCostData[index][type] = newValue;
+
+                    const item = data.monthlyCostData[index];
+                    const row = input.closest('tr');
+
+                    // Recalculate and update the corresponding 'Tổng định mức' cells
+                    row.querySelector('[data-total-nvl]').textContent = formatNumber(item.m2RE * item.nvLieu);
+                    row.querySelector('[data-total-dienre]').textContent = formatNumber(item.m2RE * item.dienRE);
+                    row.querySelector('[data-total-gas]').textContent = formatNumber(item.m2RE * item.gas);
+                    row.querySelector('[data-total-aceton]').textContent = formatNumber(item.m2RE * item.aceton);
+                    row.querySelector('[data-total-nilon]').textContent = formatNumber(item.m2RE * item.nilon);
+                    row.querySelector('[data-total-dienmai]').textContent = formatNumber(item.m2RE * item.dienMai);
+                }
+            });
+            
+            // Calculate total monthly production from productionInputData
+            const totalMonthlyProd = data.productionInputData.reduce((sum, prod) => sum + prod.quantity, 0);
+
+            // Render 6-Month Cost Table
+            const sixMonthTableBody = document.getElementById('six-month-cost-table');
+            sixMonthTableBody.innerHTML = '';
+            data.sixMonthCostData.forEach((item, index) => {
+                const dmSuDung = (item.sixMonthProd > 0) ? (item.actualUsage / item.sixMonthProd) : 0;
+                const chenhLech = dmSuDung - item.actualUsage; // The user requested `Định mức sử dụng 6 tháng - Thực dùng 6`, so I will follow this
+                const thanhTien = item.unitPrice * item.actualUsage;
+                const chiPhiThang = (item.sixMonthProd > 0) ? (thanhTien * totalMonthlyProd / item.sixMonthProd) : 0;
+                
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-nowrap">${item.item}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.monthlyProd}" data-index="${index}" data-type="monthlyProd" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right">${formatNumber(totalMonthlyProd)}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.sixMonthProd}" data-index="${index}" data-type="sixMonthProd" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.actualUsage}" data-index="${index}" data-type="actualUsage" step="0.01">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right font-medium" data-dm-su-dung>${formatNumber(dmSuDung)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-medium" data-chenh-lech>${formatNumber(chenhLech)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right">${formatCurrency(item.unitPrice)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-green-600" data-thanh-tien>${formatCurrency(thanhTien)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-chi-phi-thang>${formatCurrency(chiPhiThang)}</td>
+                `;
+                sixMonthTableBody.appendChild(row);
+            });
+            
+            // Add event listener to handle 6-month cost input changes
+            sixMonthTableBody.addEventListener('input', (event) => {
+                const input = event.target;
+                if (input.tagName === 'INPUT') {
+                    const index = input.getAttribute('data-index');
+                    const type = input.getAttribute('data-type');
+                    const newValue = parseFloat(input.value) || 0;
+                    data.sixMonthCostData[index][type] = newValue;
+                    
+                    const item = data.sixMonthCostData[index];
+                    const dmSuDung = (item.sixMonthProd > 0) ? (item.actualUsage / item.sixMonthProd) : 0;
+                    const chenhLech = dmSuDung - item.actualUsage;
+                    const thanhTien = item.unitPrice * item.actualUsage;
+                    const chiPhiThang = (item.sixMonthProd > 0) ? (thanhTien * totalMonthlyProd / item.sixMonthProd) : 0;
+                    
+                    const row = input.closest('tr');
+                    row.querySelector('[data-dm-su-dung]').textContent = formatNumber(dmSuDung);
+                    row.querySelector('[data-chenh-lech]').textContent = formatNumber(chenhLech);
+                    row.querySelector('[data-thanh-tien]').textContent = formatCurrency(thanhTien);
+                    row.querySelector('[data-chi-phi-thang]').textContent = formatCurrency(chiPhiThang);
+                }
+            });
+        }
+        
+        // New function to render the arising input view
+        function renderArisingInputView() {
+            hideAllViews();
+            document.getElementById('arising-input-view').classList.remove('hidden');
+
+            const tableBody = document.getElementById('arising-cost-table');
+            tableBody.innerHTML = '';
+            
+            data.arisingData.forEach((item, index) => {
+                const total = item.quantity * item.unitPrice;
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-nowrap">${item.item}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input input-3p text-right" value="${item.quantity}" data-index="${index}" step="1">
+                    </td>
+                    <td class="py-3 px-6 text-nowrap text-right">${item.unit}</td>
+                    <td class="py-3 px-6 text-nowrap text-right">${formatCurrency(item.unitPrice)}</td>
+                    <td class="py-3 px-6 text-nowrap text-right font-bold text-blue-600" data-total-arising-cost>${formatCurrency(total)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Add event listener to handle input changes for arising costs
+            tableBody.addEventListener('input', (event) => {
+                const input = event.target;
+                if (input.tagName === 'INPUT') {
+                    const index = input.getAttribute('data-index');
+                    const newQuantity = parseFloat(input.value) || 0;
+                    data.arisingData[index].quantity = newQuantity;
+                    
+                    const total = newQuantity * data.arisingData[index].unitPrice;
+                    const totalCell = input.closest('tr').querySelector('[data-total-arising-cost]');
+                    totalCell.textContent = formatCurrency(total);
+                }
+            });
+        }
 
         // Main calculation and render function for the dashboard
         function calculateAndRender() {
+            // Aggregate all arising funds from the arisingData table
+            const totalArisingFunds = data.arisingData.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+            
             // Step 1: Calculate the "Initial Fund"
             const reAdjustments = data.qualityFunds.filter(q => q.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) + 
                                   data.costFunds.filter(c => c.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) +
-                                  data.qualityFunds.filter(q => q.item.includes('vệ sinh 5S – RE')).reduce((sum, item) => sum + item.value, 0) +
-                                  data.costFunds.filter(c => c.item.includes('HC dừng theo KH')).reduce((sum, item) => sum + item.value, 0);
+                                  data.qualityFunds.filter(q => q.item.includes('vệ sinh 5S – RE')).reduce((sum, item) => sum + item.value, 0);
 
             const mAdjustments = data.qualityFunds.filter(q => q.item.includes('Mài')).reduce((sum, item) => sum + item.value, 0) + 
                                  data.qualityFunds.filter(q => q.item.includes('m2A1')).reduce((sum, item) => sum + item.value, 0) + 
                                  data.costFunds.filter(c => c.item.includes('Mài')).reduce((sum, item) => sum + item.value, 0) +
-                                 data.costFunds.filter(c => c.item.includes('Tiền chạy mẫu')).reduce((sum, item) => sum + item.value, 0) +
                                  data.qualityFunds.filter(q => q.item.includes('vệ sinh 5S – Mài')).reduce((sum, item) => sum + item.value, 0);
-
+                                 
             const reInitialAdjustedFund = data.reTotalFund + reAdjustments;
             const mInitialAdjustedFund = data.mTotalFund + mAdjustments;
-
+            
             // Step 2: Calculate the "Remaining Fund"
-            const totalInitialAdjustedFund = reInitialAdjustedFund + mInitialAdjustedFund;
+            const totalInitialAdjustedFund = reInitialAdjustedFund + mInitialAdjustedFund + totalArisingFunds;
             const reCompanyFundPortion = (reInitialAdjustedFund / totalInitialAdjustedFund) * data.companyFundAdjustment;
             const mCompanyFundPortion = (mInitialAdjustedFund / totalInitialAdjustedFund) * data.companyFundAdjustment;
 
@@ -721,9 +1019,11 @@
                 `;
                 qualityTableBody.appendChild(row);
             });
-
+            
             const costTableBody = document.getElementById('cost-fund-table');
             costTableBody.innerHTML = '';
+            
+            // Add existing cost funds
             data.costFunds.forEach(item => {
                 const row = document.createElement('tr');
                 row.className = 'border-b border-gray-200 hover:bg-gray-100';
@@ -733,6 +1033,15 @@
                 `;
                 costTableBody.appendChild(row);
             });
+
+            // Add a new row for the total of arising funds
+            const totalArisingRow = document.createElement('tr');
+            totalArisingRow.className = 'border-b border-gray-200 hover:bg-gray-100 font-bold';
+            totalArisingRow.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">Tổng Phát sinh khác</td>
+                <td class="py-3 px-6 text-right">${formatCurrency(totalArisingFunds)}</td>
+            `;
+            costTableBody.appendChild(totalArisingRow);
             
             document.getElementById('re-initial-fund').textContent = formatCurrency(reInitialAdjustedFund);
             document.getElementById('re-final-fund').textContent = formatCurrency(reRemainingFund);
@@ -921,6 +1230,10 @@
                 renderProductionInputView();
             } else if (step === 2) {
                 renderQualityInputView();
+            } else if (step === 3) {
+                renderCostInputView();
+            } else if (step === 4) {
+                renderArisingInputView();
             } else {
                 renderDashboardView();
             }
@@ -938,6 +1251,8 @@
             // Add event listener for the "Save & Return" button
             document.getElementById('save-and-return-btn').addEventListener('click', () => setActiveStep(2));
             document.getElementById('save-and-return-quality-btn').addEventListener('click', () => setActiveStep(3));
+            document.getElementById('save-and-return-cost-btn').addEventListener('click', () => setActiveStep(4));
+            document.getElementById('save-and-return-arising-btn').addEventListener('click', () => setActiveStep(5));
 
             // Initialize the app by showing the production input view
             setActiveStep(1);
