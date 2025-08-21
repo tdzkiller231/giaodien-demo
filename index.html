@@ -182,7 +182,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Quỹ Lương Rung Ép -->
                 <div class="bg-gray-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">I. RUNG ÉP (Tổng 14,694.44 m²)</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">I. RUNG ÉP (Tổng <span id="re-total-prod"></span> m²)</h3>
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-gray-500">Tổng Quỹ Lương</span>
                         <span id="re-fund-display" class="text-2xl font-bold text-blue-600"></span>
@@ -205,7 +205,7 @@
 
                 <!-- Quỹ Lương Mài -->
                 <div class="bg-gray-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">II. MÀI (Tổng 28,585.6 m²)</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">II. MÀI (Tổng <span id="m-total-prod"></span> m²)</h3>
                     <div class="flex items-center justify-between mb-4">
                         <span class="text-gray-500">Tổng Quỹ Lương</span>
                         <span id="m-fund-display" class="text-2xl font-bold text-green-600"></span>
@@ -404,18 +404,19 @@
                 <table class="w-full text-left table-auto">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6">Tổ sản xuất</th>
                             <th class="py-3 px-6">Nhóm sản phẩm</th>
                             <th class="py-3 px-6 text-right">M2 Rung ép (m²)</th>
                             <th class="py-3 px-6 text-right">%A1 chỉ tiêu</th>
                             <th class="py-3 px-6 text-right">%A1 thực tế</th>
-                            <th class="py-3 px-6 text-right">M2 thưởng phạt ban đầu</th>
+                            <th class="py-3 px-6 text-right">m2 thưởng phạt ban đầu</th>
                             <th class="py-3 px-6 text-right">Đơn giá</th>
                             <th class="py-3 px-6 text-right">Thành tiền</th>
                             <th class="py-3 px-6 text-right">%A1 cuối cùng</th>
                             <th class="py-3 px-6 text-right">%C</th>
                             <th class="py-3 px-6 text-right">A1 m2 thưởng phạt</th>
                             <th class="py-3 px-6 text-right">C m2 phạt</th>
+                            <th class="py-3 px-6 text-right">Thành tiền A1</th>
+                            <th class="py-3 px-6 text-right">Thành tiền C</th>
                         </tr>
                     </thead>
                     <tbody id="quality-input-table" class="text-gray-600 text-sm font-light">
@@ -525,33 +526,19 @@
     <script>
         // Data based on the user's provided tables
         const data = {
-            reFundData: [
-                { item: 'Nhóm 1RL', prod: 615.29, fund: 51683940 },
-                { item: 'Nhóm 1SL', prod: 3604.59, fund: 302785560 },
-                { item: 'Nhóm 2RL', prod: 1246.91, fund: 89777160 },
-                { item: 'Nhóm 2SL', prod: 4257.99, fund: 306575280 },
-                { item: 'Nhóm 4R', prod: 630.00, fund: 25200000 },
-                { item: 'Nhóm 4RL', prod: 909.32, fund: 43647120 },
-                { item: 'Nhóm 4SL', prod: 1442.93, fund: 69260400 },
-                { item: 'Nhóm 6RL', prod: 751.41, fund: 18033840 },
-                { item: 'Nhóm 6SL', prod: 1236.02, fund: 29664360 },
-            ],
-            reTotalFund: 994882800,
+            // Updated to be empty initially, values will be calculated dynamically
+            reTotalFund: 0,
+            mTotalFund: 0,
+            reTotalProd: 0,
+            mTotalProd: 0,
             
-            mFundData: [
-                { item: 'Nhóm 1', prod: 8337.8, fund: 83377650 },
-                { item: 'Nhóm 2', prod: 10866.1, fund: 97794945 },
-                { item: 'Nhóm 3', prod: 2613.6, fund: 20908680 },
-                { item: 'Nhóm 4', prod: 6768.1, fund: 47376847 },
-            ],
-            mTotalFund: 249458122,
-
             qualityFunds: [
                 { item: 'Điểm bảo dưỡng TB cấp 1,2 – RE', value: -7347218 },
                 { item: 'Điểm bảo dưỡng TB cấp 1,2 – Mài', value: -4287836 },
                 { item: 'Điểm vệ sinh 5S – RE', value: -8000000 },
                 { item: 'Điểm vệ sinh 5S – Mài', value: -6000000 },
-                { item: 'm2A1 phạt nhóm 1–4', value: -26503193 },
+                // The m2A1 penalty will now be dynamically calculated
+                { item: 'm2A1 phạt nhóm 1–4', value: 0 },
             ],
 
             costFunds: [
@@ -590,29 +577,21 @@
                 { role: 'CN Mài hoàn thiện', fundSource: 'Mài', initialRatio: 1.0, headcount: 18.79 },
             ],
 
-            // New hard-coded data for production input table based on the CSV snippet
+            // Updated data for production input table to include quality fields
             productionInputData: [
-                { product: 'A', group: 'Nhóm 1SL', unitPrice: 84000, team: 'RE1', quantity: 130.68 },
-                { product: 'B', group: 'Nhóm 1RL', unitPrice: 84000, team: 'RE2', quantity: 201.465 },
-                { product: 'C', group: 'Nhóm 1SL', unitPrice: 84000, team: 'RE3', quantity: 451.935 },
-                { product: 'D', group: 'Nhóm 2SL', unitPrice: 72000, team: 'RE4', quantity: 4257.99 },
-                { product: 'E', group: 'Nhóm 2RL', unitPrice: 72000, team: 'RE1', quantity: 1246.91 },
-                { product: 'F', group: 'Nhóm 4RL', unitPrice: 48000, team: 'RE2', quantity: 909.32 },
-                { product: 'G', group: 'Nhóm 4SL', unitPrice: 48000, team: 'RE3', quantity: 1442.93 },
-                { product: 'H', group: 'Nhóm 6RL', unitPrice: 24000, team: 'RE4', quantity: 751.41 },
-                { product: 'I', group: 'Nhóm 6SL', unitPrice: 24000, team: 'RE1', quantity: 1236.02 },
-            ],
-            
-            // New hard-coded data for quality input table
-            qualityInputData: [
-                { team: 'RE1', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-                { team: 'RE2', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-                { team: 'RE3', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-                { team: 'RE4', productGroup: 'Nhóm 1', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-                { team: 'RE1', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-                { team: 'RE2', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-                { team: 'RE3', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
-                { team: 'RE4', productGroup: 'Nhóm 2', targetA1: 98.5, unitPrice: 60000, actualA1: 0, finalA1: 0, actualC: 0 },
+                { product: 'A', group: 'Nhóm 1SL', team: 'RE', unitPrice: 84000, quantity: 130.68, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'B', group: 'Nhóm 1RL', team: 'RE', unitPrice: 84000, quantity: 201.465, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'C', group: 'Nhóm 1SL', team: 'RE', unitPrice: 84000, quantity: 451.935, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'D', group: 'Nhóm 2SL', team: 'RE', unitPrice: 72000, quantity: 4257.99, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'E', group: 'Nhóm 2RL', team: 'RE', unitPrice: 72000, quantity: 1246.91, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'F', group: 'Nhóm 4RL', team: 'RE', unitPrice: 48000, quantity: 909.32, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'G', group: 'Nhóm 4SL', team: 'RE', unitPrice: 48000, quantity: 1442.93, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'H', group: 'Nhóm 6RL', team: 'RE', unitPrice: 24000, quantity: 751.41, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'I', group: 'Nhóm 6SL', team: 'RE', unitPrice: 24000, quantity: 1236.02, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'RE' },
+                { product: 'J', group: 'Nhóm 1', team: 'Mài', unitPrice: 10000, quantity: 8337.8, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'Mài' },
+                { product: 'K', group: 'Nhóm 2', team: 'Mài', unitPrice: 9000, quantity: 10866.1, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'Mài' },
+                { product: 'L', group: 'Nhóm 3', team: 'Mài', unitPrice: 8000, quantity: 2613.6, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'Mài' },
+                { product: 'M', group: 'Nhóm 4', team: 'Mài', unitPrice: 7000, quantity: 6768.1, targetA1: 98.5, actualA1: 0, finalA1: 0, actualC: 0, bonusUnitPrice: 60000, type: 'Mài' },
             ],
             
             // Updated hard-coded data for monthly cost input table with more rows and a new structure for inputs
@@ -653,6 +632,66 @@
             const totalSteps = 5;
             return (step - 1) * (100 / (totalSteps - 1));
         };
+
+        // --- DYNAMIC CALCULATION FUNCTIONS ---
+
+        // Function to calculate the total production fund based on input
+        function calculateProductionFunds() {
+            let reFund = 0;
+            let mFund = 0;
+            let reProd = 0;
+            let mProd = 0;
+            const reGroups = {};
+            const mGroups = {};
+            
+            data.productionInputData.forEach(item => {
+                const fund = item.quantity * item.unitPrice;
+                if (item.type === 'RE') {
+                    reFund += fund;
+                    reProd += item.quantity;
+                    if (!reGroups[item.group]) reGroups[item.group] = { prod: 0, fund: 0 };
+                    reGroups[item.group].prod += item.quantity;
+                    reGroups[item.group].fund += fund;
+                } else if (item.type === 'Mài') {
+                    mFund += fund;
+                    mProd += item.quantity;
+                    if (!mGroups[item.group]) mGroups[item.group] = { prod: 0, fund: 0 };
+                    mGroups[item.group].prod += item.quantity;
+                    mGroups[item.group].fund += fund;
+                }
+            });
+            data.reTotalFund = reFund;
+            data.mTotalFund = mFund;
+            data.reTotalProd = reProd;
+            data.mTotalProd = mProd;
+            return { reFund, mFund, reProd, mProd, reGroups, mGroups };
+        }
+
+        // Function to calculate the quality bonus/penalty funds
+        function calculateQualityFunds() {
+            let totalA1BonusPenalty = 0;
+            let totalCPenalty = 0;
+            data.productionInputData.forEach(item => {
+                // Calculation based on quality input table logic
+                const a1BonusPenaltyM2 = (item.finalA1 - 98.5) * item.quantity / 100;
+                const cPenaltyM2 = (item.actualC - 0.02) * item.quantity / 100;
+                totalA1BonusPenalty += (a1BonusPenaltyM2 * item.bonusUnitPrice);
+                totalCPenalty += (cPenaltyM2 * item.bonusUnitPrice);
+            });
+            return { totalA1BonusPenalty, totalCPenalty };
+        }
+
+        // Function to calculate the total cost funds from the 6-month table
+        function calculateSixMonthCostFunds() {
+            let totalCost = 0;
+            const totalMonthlyProd = data.productionInputData.reduce((sum, prod) => sum + prod.quantity, 0);
+            data.sixMonthCostData.forEach(item => {
+                const thanhTien = item.unitPrice * item.actualUsage;
+                const chiPhiThang = (item.sixMonthProd > 0) ? (thanhTien * totalMonthlyProd / item.sixMonthProd) : 0;
+                totalCost += chiPhiThang;
+            });
+            return totalCost;
+        }
 
         // --- RENDER FUNCTIONS FOR VIEWS AND DATA ---
         function hideAllViews() {
@@ -716,35 +755,30 @@
             const tableBody = document.getElementById('quality-input-table');
             tableBody.innerHTML = '';
 
-            // Aggregate RE quantities from productionInputData
-            const teamQuantities = new Map();
-            data.productionInputData.forEach(prod => {
-                const key = `${prod.team}-${prod.group}`;
-                const currentQty = teamQuantities.get(key) || 0;
-                teamQuantities.set(key, currentQty + prod.quantity);
-            });
+            data.productionInputData.forEach((item, index) => {
+                const initialBonusPenalty = ((item.actualA1 - item.targetA1) / 100) * item.quantity;
+                const totalPrice = initialBonusPenalty * item.bonusUnitPrice;
+                
+                // New calculations for A1 and C penalties
+                const a1BonusPenaltyM2 = (item.finalA1 - 98.5) * item.quantity / 100;
+                const cPenaltyM2 = (item.actualC - 0.02) * item.quantity / 100;
 
-            data.qualityInputData.forEach((item, index) => {
-                const key = `${item.team}-${item.productGroup}`;
-                const m2RE = teamQuantities.get(key) || 0;
-
-                const initialBonusPenalty = (item.actualA1 - item.targetA1) * m2RE;
-                const totalPrice = initialBonusPenalty * item.unitPrice;
-                const a1BonusPenalty = (item.finalA1 - 98.5) * m2RE;
-                const cPenalty = (item.actualC - 0.02) * m2RE;
+                const a1Fund = a1BonusPenaltyM2 * item.bonusUnitPrice;
+                const cFund = cPenaltyM2 * item.bonusUnitPrice;
 
                 const row = document.createElement('tr');
                 row.className = 'border-b border-gray-200 hover:bg-gray-100';
                 row.innerHTML = `
-                    <td class="py-3 px-6 whitespace-nowrap">${item.team}</td>
-                    <td class="py-3 px-6 whitespace-nowrap">${item.productGroup}</td>
-                    <td class="py-3 px-6 text-right">${formatNumber(m2RE)}</td>
-                    <td class="py-3 px-6 text-right">${item.targetA1.toFixed(1)}%</td>
+                    <td class="py-3 px-6 whitespace-nowrap">${item.group}</td>
+                    <td class="py-3 px-6 text-right">${formatNumber(item.quantity)}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" class="payroll-input text-right" value="${item.targetA1}" data-index="${index}" data-type="targetA1" min="0" step="0.1">
+                    </td>
                     <td class="py-3 px-6 text-right">
                         <input type="number" class="payroll-input text-right" value="${item.actualA1}" data-index="${index}" data-type="actualA1" min="0" step="0.1">
                     </td>
                     <td class="py-3 px-6 text-right" data-initial-bonus-penalty>${formatNumber(initialBonusPenalty)}</td>
-                    <td class="py-3 px-6 text-right">${formatCurrency(item.unitPrice)}</td>
+                    <td class="py-3 px-6 text-right">${formatCurrency(item.bonusUnitPrice)}</td>
                     <td class="py-3 px-6 text-right font-semibold text-blue-600" data-total-price>${formatCurrency(totalPrice)}</td>
                     <td class="py-3 px-6 text-right">
                         <input type="number" class="payroll-input text-right" value="${item.finalA1}" data-index="${index}" data-type="finalA1" min="0" step="0.1">
@@ -752,8 +786,10 @@
                     <td class="py-3 px-6 text-right">
                         <input type="number" class="payroll-input text-right" value="${item.actualC}" data-index="${index}" data-type="actualC" min="0" step="0.001">
                     </td>
-                    <td class="py-3 px-6 text-right font-semibold" data-a1-bonus-penalty>${formatNumber(a1BonusPenalty)}</td>
-                    <td class="py-3 px-6 text-right font-semibold" data-c-penalty>${formatNumber(cPenalty)}</td>
+                    <td class="py-3 px-6 text-right font-semibold" data-a1-bonus-penalty>${formatNumber(a1BonusPenaltyM2)}</td>
+                    <td class="py-3 px-6 text-right font-semibold" data-c-penalty>${formatNumber(cPenaltyM2)}</td>
+                    <td class="py-3 px-6 text-right font-semibold text-green-600" data-a1-fund>${formatCurrency(a1Fund)}</td>
+                    <td class="py-3 px-6 text-right font-semibold text-red-600" data-c-fund>${formatCurrency(cFund)}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -765,22 +801,25 @@
                     const index = input.getAttribute('data-index');
                     const type = input.getAttribute('data-type');
                     const newValue = parseFloat(input.value) || 0;
-                    data.qualityInputData[index][type] = newValue;
+                    data.productionInputData[index][type] = newValue;
 
-                    const item = data.qualityInputData[index];
-                    const key = `${item.team}-${item.productGroup}`;
-                    const m2RE = teamQuantities.get(key) || 0;
+                    const item = data.productionInputData[index];
                     
-                    const initialBonusPenalty = (item.actualA1 - item.targetA1) * m2RE;
-                    const totalPrice = initialBonusPenalty * item.unitPrice;
-                    const a1BonusPenalty = (item.finalA1 - 98.5) * m2RE;
-                    const cPenalty = (item.actualC - 0.02) * m2RE;
+                    // Recalculate based on the new logic
+                    const initialBonusPenalty = ((item.actualA1 - item.targetA1) / 100) * item.quantity;
+                    const totalPrice = initialBonusPenalty * item.bonusUnitPrice;
+                    const a1BonusPenaltyM2 = (item.finalA1 - 98.5) * item.quantity / 100;
+                    const cPenaltyM2 = (item.actualC - 0.02) * item.quantity / 100;
+                    const a1Fund = a1BonusPenaltyM2 * item.bonusUnitPrice;
+                    const cFund = cPenaltyM2 * item.bonusUnitPrice;
 
                     const row = input.closest('tr');
                     row.querySelector('[data-initial-bonus-penalty]').textContent = formatNumber(initialBonusPenalty);
                     row.querySelector('[data-total-price]').textContent = formatCurrency(totalPrice);
-                    row.querySelector('[data-a1-bonus-penalty]').textContent = formatNumber(a1BonusPenalty);
-                    row.querySelector('[data-c-penalty]').textContent = formatNumber(cPenalty);
+                    row.querySelector('[data-a1-bonus-penalty]').textContent = formatNumber(a1BonusPenaltyM2);
+                    row.querySelector('[data-c-penalty]').textContent = formatNumber(cPenaltyM2);
+                    row.querySelector('[data-a1-fund]').textContent = formatCurrency(a1Fund);
+                    row.querySelector('[data-c-fund]').textContent = formatCurrency(cFund);
                 }
             });
         }
@@ -956,9 +995,18 @@
 
         // Main calculation and render function for the dashboard
         function calculateAndRender() {
+            // Calculate funds and production amounts from production input
+            const { reFund, mFund, reProd, mProd, reGroups, mGroups } = calculateProductionFunds();
+            
+            // Calculate quality bonus/penalty from quality input
+            const { totalA1BonusPenalty, totalCPenalty } = calculateQualityFunds();
+
             // Aggregate all arising funds from the arisingData table
             const totalArisingFunds = data.arisingData.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
             
+            // Calculate total cost funds from 6-month table
+            const totalSixMonthCostFunds = calculateSixMonthCostFunds();
+
             // Step 1: Calculate the "Initial Fund"
             const reAdjustments = data.qualityFunds.filter(q => q.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) + 
                                   data.costFunds.filter(c => c.item.includes('RE')).reduce((sum, item) => sum + item.value, 0) +
@@ -968,9 +1016,9 @@
                                  data.qualityFunds.filter(q => q.item.includes('m2A1')).reduce((sum, item) => sum + item.value, 0) + 
                                  data.costFunds.filter(c => c.item.includes('Mài')).reduce((sum, item) => sum + item.value, 0) +
                                  data.qualityFunds.filter(q => q.item.includes('vệ sinh 5S – Mài')).reduce((sum, item) => sum + item.value, 0);
-                                 
-            const reInitialAdjustedFund = data.reTotalFund + reAdjustments;
-            const mInitialAdjustedFund = data.mTotalFund + mAdjustments;
+
+            const reInitialAdjustedFund = reFund + reAdjustments;
+            const mInitialAdjustedFund = mFund + mAdjustments + totalA1BonusPenalty + totalCPenalty + totalSixMonthCostFunds;
             
             // Step 2: Calculate the "Remaining Fund"
             const totalInitialAdjustedFund = reInitialAdjustedFund + mInitialAdjustedFund + totalArisingFunds;
@@ -982,34 +1030,38 @@
             const totalRemainingFund = reRemainingFund + mRemainingFund;
 
             // --- POPULATE UI ELEMENTS (UNCHANGED SECTIONS) ---
-            document.getElementById('re-fund-display').textContent = formatCurrency(data.reTotalFund);
+            document.getElementById('re-total-prod').textContent = formatNumber(reProd);
+            document.getElementById('re-fund-display').textContent = formatCurrency(reFund);
             const reTableBody = document.getElementById('re-fund-table');
             reTableBody.innerHTML = '';
-            data.reFundData.forEach(item => {
+            for (const group in reGroups) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="py-2 px-4">${item.item}</td>
-                    <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
-                    <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+                    <td class="py-2 px-4">${group}</td>
+                    <td class="py-2 px-4 text-right">${formatNumber(reGroups[group].prod)}</td>
+                    <td class="py-2 px-4 text-right">${formatCurrency(reGroups[group].fund)}</td>
                 `;
                 reTableBody.appendChild(row);
-            });
+            }
 
-            document.getElementById('m-fund-display').textContent = formatCurrency(data.mTotalFund);
+            document.getElementById('m-total-prod').textContent = formatNumber(mProd);
+            document.getElementById('m-fund-display').textContent = formatCurrency(mFund);
             const mTableBody = document.getElementById('m-fund-table');
             mTableBody.innerHTML = '';
-            data.mFundData.forEach(item => {
+            for (const group in mGroups) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="py-2 px-4">${item.item}</td>
-                    <td class="py-2 px-4 text-right">${formatNumber(item.prod)}</td>
-                    <td class="py-2 px-4 text-right">${formatCurrency(item.fund)}</td>
+                    <td class="py-2 px-4">${group}</td>
+                    <td class="py-2 px-4 text-right">${formatNumber(mGroups[group].prod)}</td>
+                    <td class="py-2 px-4 text-right">${formatCurrency(mGroups[group].fund)}</td>
                 `;
                 mTableBody.appendChild(row);
-            });
+            }
 
             const qualityTableBody = document.getElementById('quality-fund-table');
             qualityTableBody.innerHTML = '';
+            
+            // Add static quality funds
             data.qualityFunds.forEach(item => {
                 const row = document.createElement('tr');
                 row.className = 'border-b border-gray-200 hover:bg-gray-100';
@@ -1019,6 +1071,16 @@
                 `;
                 qualityTableBody.appendChild(row);
             });
+            
+            // Add dynamic quality funds from user input
+            const totalA1AndC = totalA1BonusPenalty + totalCPenalty;
+            const dynamicQualityRow = document.createElement('tr');
+            dynamicQualityRow.className = 'border-b border-gray-200 hover:bg-gray-100 font-bold';
+            dynamicQualityRow.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">Tổng Quỹ Thưởng/Phạt A1 & C</td>
+                <td class="py-3 px-6 text-right">${formatCurrency(totalA1AndC)}</td>
+            `;
+            qualityTableBody.appendChild(dynamicQualityRow);
             
             const costTableBody = document.getElementById('cost-fund-table');
             costTableBody.innerHTML = '';
@@ -1042,6 +1104,15 @@
                 <td class="py-3 px-6 text-right">${formatCurrency(totalArisingFunds)}</td>
             `;
             costTableBody.appendChild(totalArisingRow);
+            
+            // Add a new row for the total of 6-month costs
+            const totalSixMonthCostRow = document.createElement('tr');
+            totalSixMonthCostRow.className = 'border-b border-gray-200 hover:bg-gray-100 font-bold';
+            totalSixMonthCostRow.innerHTML = `
+                <td class="py-3 px-6 whitespace-nowrap">Tổng Chi phí 6 tháng</td>
+                <td class="py-3 px-6 text-right">${formatCurrency(totalSixMonthCostFunds)}</td>
+            `;
+            costTableBody.appendChild(totalSixMonthCostRow);
             
             document.getElementById('re-initial-fund').textContent = formatCurrency(reInitialAdjustedFund);
             document.getElementById('re-final-fund').textContent = formatCurrency(reRemainingFund);
@@ -1260,3 +1331,4 @@
     </script>
 </body>
 </html>
+
