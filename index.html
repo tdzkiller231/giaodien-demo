@@ -1152,19 +1152,25 @@
             let totalWorkerPayroll = 0;
             let totalWorkerCount = 0;
             const workerTableBody = document.getElementById('worker-payroll-table');
+            const totalWorkerFund = reRemainingFund + mRemainingFund; // Correctly get the total fund from both RE and Mài
+            let totalRatio = 0;
             
             const inputs = workerTableBody.querySelectorAll('.payroll-input');
+
+            // First pass to calculate total ratio
+            inputs.forEach(input => {
+                const ratio = parseFloat(input.value) || 0;
+                totalRatio += ratio;
+            });
+            
+            // Second pass to calculate and display funds
             inputs.forEach(input => {
                 const index = input.getAttribute('data-index');
                 const department = data.workerDepartments[index];
-                const ratio = parseFloat(input.value) / 100;
+                const ratio = parseFloat(input.value) / 100 || 0;
                 
-                let payrollFund = 0;
-                if (department.fundSource === 'RE') {
-                    payrollFund = ratio * reRemainingFund;
-                } else if (department.fundSource === 'Mài') {
-                    payrollFund = ratio * mRemainingFund;
-                }
+                // Calculate based on the total worker fund
+                const payrollFund = ratio * totalWorkerFund;
                 
                 const avgSalary = department.headcount > 0 ? payrollFund / department.headcount : 0;
                 
@@ -1173,6 +1179,15 @@
                 
                 payrollCell.textContent = formatCurrency(payrollFund);
                 avgSalaryCell.textContent = formatCurrency(avgSalary);
+                
+                // Change input color if total ratio exceeds 100%
+                if (totalRatio > 100) {
+                    input.style.border = '1px solid red';
+                    input.style.color = 'red';
+                } else {
+                    input.style.border = '1px solid #d1d5db';
+                    input.style.color = 'inherit';
+                }
 
                 totalWorkerPayroll += payrollFund;
                 totalWorkerCount += department.headcount;
@@ -1331,4 +1346,3 @@
     </script>
 </body>
 </html>
-
